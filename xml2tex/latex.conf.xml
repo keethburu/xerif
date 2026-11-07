@@ -809,13 +809,17 @@
     <!-- delete index terms to avoid TeX errors if no index is created but indexterms are contained in document.-->
   </xsl:template>
 
-  <template context="/*/*[self::dbk:part|self::dbk:chapter|self::dbk:section]
-                         [empty(preceding-sibling::dbk:para)][1]
-                         [empty(preceding-sibling::dbk:figure)][1]
-                         [not(//dbk:toc)]
-                         [$create-mainmatter]
-                    |/*/dbk:para[1][following-sibling::*[self::dbk:part|self::dbk:chapter|self::dbk:section]][$create-mainmatter]
-                    |/*/dbk:figure[1][following-sibling::*[self::dbk:part|self::dbk:chapter|self::dbk:section]][$create-mainmatter]" priority="3001">
+  <template context="/*/*[self::dbk:part| self::dbk:chapter| self::dbk:section]
+                    [empty(preceding-sibling::dbk:para[1])]
+                    [empty(preceding-sibling::*[self::dbk:part| self::dbk:chapter|
+                    self::dbk:section] [1])] [empty(preceding-sibling::dbk:figure[1])]
+                    [not(//dbk:toc)] [$create-mainmatter] |
+                    /*/dbk:para[empty(preceding-sibling::dbk:para[1])]
+                    [following-sibling::*[self::dbk:part| self::dbk:chapter| self::dbk:section]]
+                    [$create-mainmatter] |
+                    /*/dbk:figure[empty(preceding-sibling::dbk:figure[1])]
+                    [following-sibling::*[self::dbk:part| self::dbk:chapter| self::dbk:section]]
+                    [$create-mainmatter]" priority="3001">
     <xsl:text>&#xa;\mainmatter&#xa;</xsl:text>
     <xsl:next-match/>
   </template>
@@ -833,11 +837,13 @@
     </rule>
   </template>
   
-  <template context="/*/*[self::dbk:appendix
-                         |self::dbk:index
-                         |self::dbk:bibliography]
-                         [matches((@role, descendant::dbk:title[1]/@role)[1], $backmatter-heading-role-regex)][1]
-                         [not(//processing-instruction()[contains(., '\backmatter')])]" priority="302">
+  <template context="/*/*[self::dbk:appendix | self::dbk:index | self::dbk:bibliography]
+                    [matches((@role, descendant::dbk:title[1]/@role)[1],
+                    $backmatter-heading-role-regex)]
+                    [empty(preceding-sibling::*[self::dbk:appendix| self::dbk:index|
+                    self::dbk:bibliography]  [matches((@role,
+                    descendant::dbk:title[1]/@role)[1], $backmatter-heading-role-regex)] [1])]
+                    [not(//processing-instruction()[contains(., '\backmatter')])]" priority="302">
     <xsl:if test="not(preceding::*[self::dbk:appendix
                                   |self::dbk:index
                                   |self::dbk:bibliography]
@@ -869,15 +875,11 @@
     </xsl:if>
   </template>
 
-  <template context="/dbk:hub/*[self::dbk:chapter[not(@renderas='subhead')]
-                               |self::dbk:appendix
-                               |self::dbk:preface]
-                    |/dbk:hub/*[self::dbk:part
-                               |self::dbk:chapter[@renderas='subhead']
-                               |self::dbk:appendix]/*[ self::dbk:chapter
-                                                      |self::dbk:appendix
-                                                      |dbk:preface
-                                                      |self::dbk:section]" priority="300">
+  <template context="*[self::dbk:chapter[not(@renderas='subhead')]| self::dbk:appendix|
+                    self::dbk:preface] [parent::dbk:hub[parent::document-node()]] |
+                    *[self::dbk:chapter| self::dbk:appendix| dbk:preface| self::dbk:section]
+                    [parent::*[self::dbk:part| self::dbk:chapter[@renderas='subhead']|
+                    self::dbk:appendix] [parent::dbk:hub[parent::document-node()]]]" priority="300">
     <xsl:next-match/>
     <xsl:call-template name="create-printnotes">
       <xsl:with-param name="context" as="element(*)" select="."/>
@@ -2576,8 +2578,10 @@
     </rule>
   </template>
   
-  <template context=" dbk:blockquote[matches(@role, $verse-misc-style)]/dbk:para[position() eq last()] 
-                    | dbk:para[matches(@role, $letter-para-style)][position() eq last()]">
+  <template context="dbk:blockquote [matches(@role,
+                    $verse-misc-style)]/dbk:para[not(following-sibling::dbk:para)] |  dbk:para
+                    [matches(@role, $letter-para-style)] [not(following-sibling::dbk:para
+                    [matches(@role, $letter-para-style)])]">
     <rule>
       <text/>
     </rule>
@@ -3195,9 +3199,13 @@
          <xsl:when test=".[self::text()]"><xsl:sequence select="xml2tex:add-tactical-breaks-by-string-length(xml2tex:add-tactical-break-chars-in-linktext(.))"/></xsl:when>
          <xsl:when test=".[self::dbk:indexterm | self::dbk:footnote]"><xsl:sequence select="."/></xsl:when>
          <xsl:otherwise>
-           <xsl:apply-templates select="." mode="copy">
-             <xsl:with-param name="replace-linktext" as="xs:boolean" select="true()" tunnel="yes"/>
-           </xsl:apply-templates>
+           <xsl:variable name="replacement">
+             <xsl:copy-of select="root(.)//css:rules"/>
+             <xsl:apply-templates select="." mode="copy">
+               <xsl:with-param name="replace-linktext" as="xs:boolean" select="true()" tunnel="yes"/>
+             </xsl:apply-templates>
+           </xsl:variable>
+           <xsl:sequence select="$replacement/node() except $replacement/css:rules"/>
          </xsl:otherwise>
        </xsl:choose>
      </xsl:for-each>
@@ -3400,7 +3408,9 @@
         <xsl:value-of select="string-join(('\textit{', xml2tex:utf2tex(.., ., $charmap, (), $texregex), '}'))"/>
       </xsl:when>
       <xsl:when test="@css:font-weight eq 'bold' and @css:font-style eq 'italic'">
-        <xsl:value-of select="string-join(('\textit\textbf{', xml2tex:utf2tex(.., ., $charmap, (), $texregex), '}}'))"/>
+        <xsl:value-of select="string-join(('\textit{\textbf{',
+                                               xml2tex:utf2tex(.., ., $charmap, (), $texregex),
+                                               '}}'))"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates mode="#current"/>
@@ -3508,12 +3518,12 @@
       </xsl:when>
       <xsl:when test="$remove-textcolor eq true() or $toc-override eq true() or $bm-override eq true()">
         <!-- before: phrases were dissolved, other attributes lost. So handle phrase further without color, https://redmine.le-tex.de/issues/17106 -->
-        <xsl:variable name="phrase-without-color" as="element(dbk:phrase)">
+        <xsl:variable name="phrase-without-color">
           <xsl:copy copy-namespaces="no">
             <xsl:copy-of select="@* except @css:color, node()"/>
           </xsl:copy>
         </xsl:variable>
-        <xsl:apply-templates select="$phrase-without-color" mode="#current">
+        <xsl:apply-templates select="$phrase-without-color/dbk:phrase" mode="#current">
           <xsl:with-param name="remove-textcolor" as="xs:boolean?" select="$remove-textcolor" tunnel="yes"/>
           <xsl:with-param name="toc-override" as="xs:boolean?" select="$toc-override" tunnel="yes"/>
           <xsl:with-param name="bm-override" as="xs:boolean?" select="$bm-override" tunnel="yes"/>
@@ -3593,7 +3603,12 @@
     <!--  https://redmine.le-tex.de/issues/14615-->
     <char character="&#xAE;" string="\textregistered{}"/>
     <char character="&#x7e;" string="{\string~}"/>
-    <char character="&#x7e;" string="\({\sim}\ccaAddAltText{Tilde}\)" context="*[not(self::dbk:link|self::dbk:ulink|self::dbk:phrase[@role = 'pseudolink'])]"/>
+    <char character="&#x7e;" string="\({\sim}\)"
+          context="*[not(self::dbk:link | self::dbk:ulink |
+                         self::dbk:phrase[@role = 'pseudolink'])][not($a11y)]"/>
+    <char character="&#x7e;" string="\({\sim}\ccaAddAltText{Tilde}\)"
+          context="*[not(self::dbk:link | self::dbk:ulink |
+                         self::dbk:phrase[@role = 'pseudolink'])][$a11y]"/>
     <char character="&#x5e;" string="\textasciicircum{}"/>
     <char character="&#x2c6f;" string="\(\forall\)" />
     <char character="&#x2200;" string="\(\forall\)" />
