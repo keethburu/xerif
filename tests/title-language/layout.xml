@@ -1,0 +1,5 @@
+<set xmlns="http://transpect.io/xml2tex" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <import href="file:///opt/transpect/config/layout-common.xml"/>
+  <xsl:variable name="clientname" as="xs:string*" select="'language-test'"/>
+  <xsl:variable name="client-options" as="xs:string*" select="()"/>
+</set>
