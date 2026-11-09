@@ -1520,6 +1520,15 @@
   </template>
   
   <template context="dbk:footnote/dbk:para">
+    <!-- Capture the counter in the note, where CoCoTeX has selected its actual label. -->
+    <xsl:if test="not(preceding-sibling::dbk:para)">
+      <xsl:variable name="note" select="parent::dbk:footnote"/>
+      <xsl:variable name="anchors" select="$note/dbk:anchor | $note/preceding-sibling::*[1][self::dbk:anchor] | $note/parent::dbk:phrase[dbk:footnote]/preceding-sibling::*[1][self::dbk:anchor]"/>
+      <xsl:for-each select="$anchors[@xml:id = $anchor-ids]">
+        <xsl:variable name="index" select="index-of($anchor-ids, @xml:id)"/>
+        <xsl:value-of select="concat('\label{note-ref-', $index, '}')"/>
+      </xsl:for-each>
+    </xsl:if>
      <xsl:next-match/>
     <xsl:if test="exists(following-sibling::dbk:para)">
      <xsl:text>&#xa;</xsl:text>
@@ -3342,9 +3351,8 @@
   <template context="dbk:link[@linkend]">
     <xsl:param name="dissolve-hyperlink" as="xs:boolean?" tunnel="yes"/>
     <xsl:variable name="linkend" select="@linkend" as="attribute(linkend)"/>
-    <xsl:variable name="footnote-anchor" as="element(dbk:anchor)?" 
-                  select="//dbk:anchor[@xml:id eq $linkend]
-                                      [following-sibling::*[1][self::dbk:footnote]]"/>
+    <xsl:variable name="footnote-anchor" as="element(dbk:anchor)?"
+                  select="//dbk:anchor[@xml:id eq $linkend][parent::dbk:footnote or following-sibling::*[1][self::dbk:footnote or self::dbk:phrase[dbk:footnote]]]"/>
     <xsl:variable name="index" as="xs:integer?"
                   select="index-of($anchor-ids, @linkend)"/>
     <xsl:choose>
@@ -3361,12 +3369,9 @@
           <xsl:when test="not(node())">
             <xsl:value-of select="concat('~\ref{', $ref, '}')"/>
           </xsl:when>
-          <xsl:when test="$notes-per-chapter eq 'yes' and exists($footnote-anchor)">
-            <xsl:variable name="anchor-ids-in-chapter" as="xs:string*"
-                          select="$footnote-anchor/ancestor::dbk:chapter//dbk:anchor[@role eq 'start' or not(@role)]
-                                                                                    [@xml:id = $link-refs]
-                                                                                    [following-sibling::*[1][self::dbk:footnote]]/@xml:id"/>            
-            <xsl:value-of select="concat('{\hyperlink{', $ref, '}{', index-of($anchor-ids-in-chapter, $linkend),  '}}')"/>
+          <xsl:when test="exists($footnote-anchor) and (descendant::dbk:superscript or descendant-or-self::*[matches(@role, '(footnote|endnote)reference', 'i')] or matches(normalize-space(.), '^[0-9]+$'))">
+            <xsl:variable name="note-label" select="concat('\ref*{note-ref-', $index, '}')"/>
+            <xsl:value-of select="concat('{\hyperlink{', $ref, '}{', if (descendant::dbk:superscript or descendant-or-self::*[matches(@role, '(footnote|endnote)reference', 'i')]) then concat('\textsuperscript{', $note-label, '}') else $note-label, '}}')"/>
           </xsl:when>
           <xsl:otherwise>
           <!--  keep formatting  https://redmine.le-tex.de/issues/15153 and duplicate curled brackets -->

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Original synthetic fixture, dedicated to the public domain under CC0-1.0. -->
+<hub xmlns="http://docbook.org/ns/docbook" version="5.0" xml:lang="en">
+ <info><title>Note reference test</title></info>
+ <chapter><info><title>First chapter</title></info>
+  <para>Alpha<footnote><anchor xml:id="alpha"/><para>Alpha note body.</para></footnote>.</para>
+  <para>AlphaRepeat<link linkend="alpha"><superscript>1</superscript></link>. See<link linkend="alpha"> note details</link> and <link linkend="alpha">mix</link>.</para>
+  <para>Unrelated<anchor xml:id="ordinary"/> text. Ordinary<link linkend="ordinary"> ordinary link text</link>.</para>
+  <para>Extra<footnote><para>Extra note body.</para></footnote>.</para>
+  <para>Beta<anchor xml:id="beta"/><phrase role="EndnoteReference"><footnote role="endnote"><para>Beta note body.</para></footnote></phrase>.</para>
+  <para>BetaRepeat<link linkend="beta"><superscript>i</superscript></link>. BetaAgain<link linkend="beta">9</link>.</para>
+  <table><title>Note table</title><tgroup cols="1"><colspec colname="c1"/><tbody><row><entry><para>TableMark<footnote><anchor xml:id="tabnote"/><para>Table note body.</para></footnote>.</para></entry></row><row><entry><para>TableRepeat<link linkend="tabnote"><superscript>3</superscript></link>. TableAgain<link linkend="tabnote"><superscript>3</superscript></link>.</para></entry></row></tbody></tgroup></table>
+ </chapter>
+ <chapter><info><title>Second chapter</title></info>
+  <para>Gamma<footnote><anchor xml:id="gamma"/><para>Gamma note body.</para></footnote>.</para>
+  <para>GammaRepeat<link linkend="gamma"><superscript>9</superscript></link>.</para>
+ </chapter>
+</hub>
