@@ -5,7 +5,7 @@ subject=$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)
 image=${XERIF_TEST_IMAGE:?Set XERIF_TEST_IMAGE to the pinned check image digest}
 config=${XERIF_TEST_CONFIG:-$subject/xml2tex/latex.conf.xml}
 case "$image" in sha256:*|*@sha256:*) ;; *) echo "Use an immutable image digest" >&2; exit 2;; esac
-output=(--mount type=volume,dst=/work)
+output=(--mount "type=volume,dst=/work")
 if [[ -n "${XERIF_TEST_OUTPUT:-}" ]]; then
   mkdir -p "$XERIF_TEST_OUTPUT"
   output=(--mount "type=bind,src=$XERIF_TEST_OUTPUT,dst=/work")
