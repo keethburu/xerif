@@ -4,15 +4,16 @@
  <info><title>Note reference test</title></info>
  <chapter><info><title>First chapter</title></info>
   <para>Alpha<footnote><anchor xml:id="alpha"/><para>Alpha note body.</para></footnote>.</para>
-  <para>AlphaRepeat<link linkend="alpha"><superscript>1</superscript></link>. See<link linkend="alpha"> note details</link> and <link linkend="alpha">mix</link>.</para>
+  <para>AlphaRepeat<link linkend="alpha"><superscript role="FootnoteReference">1</superscript></link>. PlainNumber[<link linkend="alpha">42</link>]. PlainRoman[<link linkend="alpha">ix</link>]. SupText[<link linkend="alpha"><superscript>note details</superscript></link>]. PlainSup[<link linkend="alpha"><superscript>ix</superscript></link>]. SimilarRole[<link linkend="alpha" role="NotEndnoteReference">42</link>]. MixedText[<link linkend="alpha">see <phrase role="FootnoteReference">ix</phrase></link>]. See<link linkend="alpha"> note details</link> and <link linkend="alpha">mix</link>.</para>
   <para>Unrelated<anchor xml:id="ordinary"/> text. Ordinary<link linkend="ordinary"> ordinary link text</link>.</para>
   <para>Extra<footnote><para>Extra note body.</para></footnote>.</para>
   <para>Beta<anchor xml:id="beta"/><phrase role="EndnoteReference"><footnote role="endnote"><para>Beta note body.</para></footnote></phrase>.</para>
-  <para>BetaRepeat<link linkend="beta"><superscript>i</superscript></link>. BetaAgain<link linkend="beta">9</link>.</para>
-  <table><title>Note table</title><tgroup cols="1"><colspec colname="c1"/><tbody><row><entry><para>TableMark<footnote><anchor xml:id="tabnote"/><para>Table note body.</para></footnote>.</para></entry></row><row><entry><para>TableRepeat<link linkend="tabnote"><superscript>3</superscript></link>. TableAgain<link linkend="tabnote"><superscript>3</superscript></link>.</para></entry></row></tbody></tgroup></table>
+  <para>BetaEmpty<link linkend="beta"/>. BetaPhrase<link linkend="beta"><phrase role="EndnoteReference">i</phrase></link>. BetaRepeat<link linkend="beta"><superscript role="EndnoteReference">i</superscript></link>. BetaAgain<link linkend="beta" role="EndnoteReference">ix</link>.</para>
+  <table><title>Note table</title><tgroup cols="1"><colspec colname="c1"/><tbody><row><entry><para>TableMark<footnote><anchor xml:id="tabnote"/><para>Table note body.</para></footnote>.</para></entry></row><row><entry><para>TableRepeat<link linkend="tabnote"><superscript role="FootnoteReference">3</superscript></link>. TableAgain<link linkend="tabnote"><superscript role="FootnoteReference">3</superscript></link>.</para></entry></row></tbody></tgroup></table>
  </chapter>
  <chapter><info><title>Second chapter</title></info>
   <para>Gamma<footnote><anchor xml:id="gamma"/><para>Gamma note body.</para></footnote>.</para>
-  <para>GammaRepeat<link linkend="gamma"><superscript>9</superscript></link>.</para>
+  <para>CrossChapter<link linkend="beta"><phrase role="EndnoteReference">i</phrase></link>. GammaRepeat<link linkend="gamma"><superscript role="FootnoteReference">9</superscript></link>.</para>
+  <para>Delta<anchor xml:id="delta"/><footnote><para>Delta note body.</para></footnote>. DeltaRepeat<link linkend="delta"><phrase role="FootnoteReference">8</phrase></link>.</para>
  </chapter>
 </hub>
