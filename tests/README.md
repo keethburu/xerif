@@ -2,7 +2,8 @@
 
 `note-reference-hub.xml` is original synthetic text dedicated to the public domain
 under CC0-1.0. It contains mixed footnote/endnote input, repeated references,
-table notes, two chapters, and ordinary hyperlinks.
+paragraph and blockquote notes in body, title and table paths, three chapters,
+ordinary hyperlinks, Greek and Cyrillic text, a float, and a 120-row table.
 
 Run `note-reference-render.sh` with Docker and `XERIF_TEST_IMAGE` set to an
 immutable Scripello check image digest containing the real transpect/CoCoTeX/
@@ -15,10 +16,14 @@ otherwise output is temporary. `XERIF_TEST_CONFIG` is only for a before-fix
 negative control; leave it unset when validating the current checkout.
 
 The regression extracts actual PDF text for default footnotes, default endnotes,
-and endnotes with chapter resets. Each repeated call must match its original
+and endnotes with chapter resets. A fourth render uses the bundled compiled
+De Gruyter Brill small proof variant to check alternating chapter running heads;
+the default proof package deliberately uses plain pages. Each repeated call must match its original
 rendered mark. Separate assertions preserve the existing original-note sequence,
 chapter policy, note bodies and explicit hyperlink text. The test also rejects
-unresolved references and requires the ambiguity diagnostic in the conversion
+unresolved references and missing-glyph diagnostics, checks every numbered
+continuation row across at least three pages and its chapter running head,
+preserves the float and non-Latin text, and requires the ambiguity diagnostic in the conversion
 log. This exercises output behavior rather than inspecting implementation text.
 
 ## Supported reference semantics

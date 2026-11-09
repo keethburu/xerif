@@ -16,4 +16,133 @@
   <para>CrossChapter<link linkend="beta"><phrase role="EndnoteReference">i</phrase></link>. GammaRepeat<link linkend="gamma"><superscript role="FootnoteReference">9</superscript></link>.</para>
   <para>Delta<anchor xml:id="delta"/><footnote><para>Delta note body.</para></footnote>. DeltaRepeat<link linkend="delta"><phrase role="FootnoteReference">8</phrase></link>.</para>
  </chapter>
+ <chapter><info><title>Coverage chapter TitleMark<footnote><anchor xml:id="title-note"/><blockquote><para>Title quotation body.</para></blockquote></footnote></title><titleabbrev>Coverage running head</titleabbrev></info>
+  <para>TitleRepeat<link linkend="title-note" role="FootnoteReference">99</link>.</para>
+  <para>QuoteMark<footnote><anchor xml:id="quote-note"/><blockquote><para>Quotation note body.</para></blockquote></footnote>. QuoteRepeat<link linkend="quote-note"/>.</para>
+  <para>Script sample: Ελληνικά Кириллица.</para>
+  <figure floatstyle="float-pos=t"><title>Representative float</title><note><para>Float content sentinel.</para></note></figure>
+  <table><title>Continuation table</title><tgroup cols="1"><colspec colname="c1"/><thead><row><entry><para>Continuation heading</para></entry></row></thead><tbody>
+  <row><entry><para>QuoteTableMark<footnote><anchor xml:id="quote-table"/><blockquote><para>Table quotation body.</para></blockquote></footnote>. QuoteTableRepeat<link linkend="quote-table" role="FootnoteReference">99</link>.</para></entry></row>
+  <row><entry><para>ContinuationRow001 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow002 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow003 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow004 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow005 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow006 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow007 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow008 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow009 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow010 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow011 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow012 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow013 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow014 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow015 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow016 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow017 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow018 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow019 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow020 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow021 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow022 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow023 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow024 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow025 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow026 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow027 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow028 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow029 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow030 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow031 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow032 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow033 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow034 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow035 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow036 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow037 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow038 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow039 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow040 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow041 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow042 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow043 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow044 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow045 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow046 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow047 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow048 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow049 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow050 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow051 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow052 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow053 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow054 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow055 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow056 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow057 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow058 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow059 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow060 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow061 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow062 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow063 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow064 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow065 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow066 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow067 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow068 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow069 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow070 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow071 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow072 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow073 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow074 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow075 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow076 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow077 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow078 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow079 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow080 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow081 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow082 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow083 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow084 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow085 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow086 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow087 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow088 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow089 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow090 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow091 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow092 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow093 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow094 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow095 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow096 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow097 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow098 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow099 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow100 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow101 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow102 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow103 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow104 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow105 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow106 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow107 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow108 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow109 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow110 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow111 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow112 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow113 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow114 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow115 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow116 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow117 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow118 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow119 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+  <row><entry><para>ContinuationRow120 preserves independently numbered manuscript content across page boundaries.</para></entry></row>
+ </tbody></tgroup></table>
+ </chapter>
 </hub>
