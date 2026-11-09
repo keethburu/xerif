@@ -1506,7 +1506,9 @@
         <xsl:text>\tpBreak&#xa;</xsl:text>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:text>\newline&#xa;</xsl:text>
+        <!-- A block figure may already have ended the paragraph. Only end a
+             line when there is one; inline text still gets its explicit break. -->
+        <xsl:text>\ifhmode\newline\fi&#xa;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </template>
