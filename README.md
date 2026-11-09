@@ -135,3 +135,24 @@ a9s/my-client/
 
 Please see the [xml2tex README](https://github.com/transpect/xml2tex#configuration) on how to configure the xml2tex configuration.
 
+## Lightweight checks
+
+Pull requests and pushes to `main` run a three-minute-bounded XML syntax check
+using Python 3's standard library. Run the same checks locally from this repository:
+
+```sh
+python3 -B -m unittest discover -s tests -v
+python3 -B scripts/check_xml.py
+```
+
+The checker parses tracked `.xml`, `.xsl`, `.xpl`, `.xhtml`, `.xmp`, `.xsd`,
+`.rng`, and `.sch` files for well-formedness without resolving external resources.
+Stage new XML sources before running it locally so that Git includes them.
+Pass explicit file paths to check individual files, including untracked ones.
+The tests also require malformed configuration and stylesheet fixtures to fail
+that same command.
+
+This is a syntax gate, not schema validation or a full pipeline execution.
+Rendering, corpus comparisons, and container-image builds remain local acceptance
+checks; GitHub Actions does not run them.
+
