@@ -78,6 +78,12 @@ Thanks to Unicode, OpenType fonts, and advanced hyphenation support,
 xerif supports many writing systems, including Latin-based languages,
 Arabic, Hebrew, Chinese, Japanese, and Korean.
 
+In Hub XML, a title or subtitle with its own `xml:lang` uses the corresponding
+Babel language in the body, running heads, and table of contents. Headings
+without their own `xml:lang` retain the existing language inheritance.
+See the [language regression](tests/title-language/README.md) for verification
+details and the tagged-PDF accessibility limit of its pinned toolchain.
+
 ### Multiple input and output formats
 
 Supported input formats include:
