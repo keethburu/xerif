@@ -33,7 +33,8 @@ rendered note. They do not derive numbers from saved display text or anchor
 order. The supported anchor layouts are inside the note, immediately before the
 note, or immediately before a phrase containing the note. A nonempty automatic
 reference must retain the existing `FootnoteReference` or `EndnoteReference`
-role on the link or its sole textual marker. An empty link to a note anchor also
+role on the link or its sole textual marker, and its entire text must be an
+integer or Roman numeral. An empty link to a note anchor also
 requests the automatic label. Page references keep their existing behavior.
 
 An arbitrary hyperlink's text is explicit content, including numbers, Roman
