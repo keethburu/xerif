@@ -1519,6 +1519,16 @@
     <xsl:text>}</xsl:text>
   </template>
   
+  <template context="dbk:footnote/*[not(self::dbk:anchor)][1]" priority="1000">
+    <xsl:variable name="note" select="parent::dbk:footnote"/>
+    <xsl:variable name="anchors" select="$note/dbk:anchor | $note/preceding-sibling::*[1][self::dbk:anchor] | $note/parent::dbk:phrase[dbk:footnote]/preceding-sibling::*[1][self::dbk:anchor]"/>
+    <xsl:for-each select="$anchors[@xml:id = $anchor-ids]">
+      <xsl:variable name="index" select="index-of($anchor-ids, @xml:id)"/>
+      <xsl:value-of select="concat('\label{note-ref-', $index, '}')"/>
+    </xsl:for-each>
+    <xsl:next-match/>
+  </template>
+
   <template context="dbk:footnote/dbk:para">
      <xsl:next-match/>
     <xsl:if test="exists(following-sibling::dbk:para)">
@@ -3342,9 +3352,17 @@
   <template context="dbk:link[@linkend]">
     <xsl:param name="dissolve-hyperlink" as="xs:boolean?" tunnel="yes"/>
     <xsl:variable name="linkend" select="@linkend" as="attribute(linkend)"/>
-    <xsl:variable name="footnote-anchor" as="element(dbk:anchor)?" 
-                  select="//dbk:anchor[@xml:id eq $linkend]
-                                      [following-sibling::*[1][self::dbk:footnote]]"/>
+    <xsl:variable name="footnote-anchor" as="element(dbk:anchor)?"
+                  select="//dbk:anchor[@xml:id eq $linkend][parent::dbk:footnote or following-sibling::*[1][self::dbk:footnote or self::dbk:phrase[dbk:footnote]]]"/>
+    <!-- Importers retain these roles on automatic note-reference runs. A number
+         or superscript alone is not semantic evidence: it may be literal link text. -->
+    <xsl:variable name="note-reference-marker" as="element()?"
+                  select="(descendant-or-self::*[matches(@role, '^(footnote|endnote)reference$', 'i')])[1]"/>
+    <xsl:variable name="automatic-note-reference" as="xs:boolean"
+                  select="exists($footnote-anchor) and
+                          (not(node()) or (exists($note-reference-marker) and
+                           normalize-space(.) eq normalize-space($note-reference-marker) and
+                           matches(normalize-space($note-reference-marker), '^([0-9]+|[ivxlcdm]+)$', 'i')))"/>
     <xsl:variable name="index" as="xs:integer?"
                   select="index-of($anchor-ids, @linkend)"/>
     <xsl:choose>
@@ -3358,17 +3376,19 @@
           <xsl:when test="@role eq 'page'">
             <xsl:value-of select="concat('\pageref{', $ref, '}')"/>  
           </xsl:when>
+          <xsl:when test="$automatic-note-reference">
+            <xsl:variable name="note-label" select="concat('\ref*{note-ref-', $index, '}')"/>
+            <xsl:value-of select="concat('{\hyperlink{', $ref, '}{', if (exists($note-reference-marker)) then concat('\textsuperscript{', $note-label, '}') else $note-label, '}}')"/>
+          </xsl:when>
           <xsl:when test="not(node())">
             <xsl:value-of select="concat('~\ref{', $ref, '}')"/>
           </xsl:when>
-          <xsl:when test="$notes-per-chapter eq 'yes' and exists($footnote-anchor)">
-            <xsl:variable name="anchor-ids-in-chapter" as="xs:string*"
-                          select="$footnote-anchor/ancestor::dbk:chapter//dbk:anchor[@role eq 'start' or not(@role)]
-                                                                                    [@xml:id = $link-refs]
-                                                                                    [following-sibling::*[1][self::dbk:footnote]]/@xml:id"/>            
-            <xsl:value-of select="concat('{\hyperlink{', $ref, '}{', index-of($anchor-ids-in-chapter, $linkend),  '}}')"/>
-          </xsl:when>
           <xsl:otherwise>
+            <xsl:if test="exists($footnote-anchor) and
+                          (exists($note-reference-marker) or matches(normalize-space(.), '^([0-9]+|[ivxlcdm]+)$', 'i'))">
+              <xsl:message select="concat('XERIF_NOTE_REFERENCE_AMBIGUOUS: linkend=', $linkend,
+                '; explicit link text retained. Automatic note numbering is unsupported without an unambiguous FootnoteReference or EndnoteReference role. Review before publication.')"/>
+            </xsl:if>
           <!--  keep formatting  https://redmine.le-tex.de/issues/15153 and duplicate curled brackets -->
             <xsl:variable name="content-with-formatting" as="node()*">
               <xsl:apply-templates select="node()" mode="#current"/>
