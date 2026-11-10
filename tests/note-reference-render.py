@@ -57,7 +57,8 @@ for policy, per_chapter, second_start, style in (('footnotes', 'no', 1, None),
     readable = re.sub(r'-\s*\n\s*', '', text)
     compact = re.sub(r'\s+', '', readable)
     for literal in ('PlainNumber[42]', 'PlainRoman[ix]', 'SupText[notedetails]',
-                    'PlainSup[ix]', 'SimilarRole[42]', 'MixedText[seeix]'):
+                    'PlainSup[ix]', 'SimilarRole[42]', 'MixedText[seeix]',
+                    'MixedLinkFoot[seeix]', 'MixedLinkEnd[seeix]'):
         check(literal in compact, ('explicit link text changed', literal))
     for literal in ('ordinary link text', 'note details', 'mix'):
         check(literal in readable, ('ordinary link text lost', literal))

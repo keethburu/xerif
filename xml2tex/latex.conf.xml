@@ -3361,7 +3361,8 @@
     <xsl:variable name="automatic-note-reference" as="xs:boolean"
                   select="exists($footnote-anchor) and
                           (not(node()) or (exists($note-reference-marker) and
-                           normalize-space(.) eq normalize-space($note-reference-marker)))"/>
+                           normalize-space(.) eq normalize-space($note-reference-marker) and
+                           matches(normalize-space($note-reference-marker), '^([0-9]+|[ivxlcdm]+)$', 'i')))"/>
     <xsl:variable name="index" as="xs:integer?"
                   select="index-of($anchor-ids, @linkend)"/>
     <xsl:choose>
