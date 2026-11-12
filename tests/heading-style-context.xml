@@ -19,4 +19,8 @@
     <titleabbrev role="running"><phrase css:color="#FF0000" role="Strong">ExplicitRun</phrase></titleabbrev>
   </info></chapter>
   <chapter><info><title><phrase css:color="#FF0000" role="Strong">Outer<phrase role="ColoredEmphasis">RoleOnly</phrase></phrase></title></info></chapter>
+  <chapter><info>
+    <title><phrase css:color="#FF0000">Outer<phrase css:color="#FF0000" role="Strong"><footnote><para>OnlyNote</para></footnote></phrase></phrase></title>
+    <subtitle><phrase css:color="#FF0000">Outer<phrase css:color="#FF0000" role="Strong"><footnote><para>OnlyNote</para></footnote></phrase></phrase></subtitle>
+  </info></chapter>
 </hub>

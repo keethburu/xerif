@@ -152,6 +152,20 @@ def main():
              ("bookmark", title, {"bm-override": "true()"}),
              ("subtitle", "/dbk:hub/dbk:chapter[1]/dbk:info/dbk:subtitle/node()", {"remove-textcolor": "true()"}),
              ("subtitle-bookmark", "/dbk:hub/dbk:chapter[1]/dbk:info/dbk:subtitle/node()", {"bm-override": "true()"})]
+    # Independent oracle: the existing footnote-only branch dissolves the
+    # phrase wrapper, so Strong must never bold the note. The reported shared
+    # copy regression instead emits Outer\\textbf{\\protect\\footnote{OnlyNote}}.
+    for heading in ("title", "subtitle"):
+        for destination, parameters, output in (
+            ("body", {}, r"Outer\protect\footnote{OnlyNote}"),
+            ("stripped", {"remove-textcolor": "true()"}, r"Outer\protect\footnote{OnlyNote}"),
+            ("toc", {"toc-override": "true()"}, "Outer"),
+            ("running", {"run-override": "true()", "remove-textcolor": "true()"}, "Outer"),
+            ("bookmark", {"bm-override": "true()"}, "Outer"),
+        ):
+            name = f"nested-footnote-{heading}-{destination}"
+            expected[name] = output if destination != "body" else r"\textcolor{red}{" + output + "}"
+            cases.append((name, f"/dbk:hub/dbk:chapter[4]/dbk:info/dbk:{heading}/node()", parameters))
     # Exercise actual destination selectors and tunnel settings from xerif.
     for name, template, branch in (("toc", "customer-toctitles", "otherwise"), ("running", "col-titles", "when[2]"), ("explicit-toc", "customer-toctitles", "when[1]"), ("explicit-running", "col-titles", "when[1]")):
         param = config.xpath(f'c:template[@name="{template}"]/xsl:choose/xsl:{branch}/c:rule[@name="' + ("tpTocTitle" if "toc" in name else "tpRunTitle") + '"]/c:param', namespaces=NS)[0]

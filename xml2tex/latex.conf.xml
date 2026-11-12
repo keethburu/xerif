@@ -3562,8 +3562,11 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- Keep footnote-only phrases eligible for the wrapper-dissolving handler,
+       including when reached inside another phrase in the shared copy. -->
   <xsl:template match="css:rule/@css:color
-                       | dbk:phrase[ancestor::dbk:title or ancestor::dbk:subtitle]/@css:color"
+                       | dbk:phrase[ancestor::dbk:title or ancestor::dbk:subtitle]
+                                   [node()[normalize-space()][not(self::dbk:footnote)]]/@css:color"
                 mode="xml2tex:heading-without-color"/>
 
   <xsl:function name="xml2tex:heading-node-in-copy" as="node()">

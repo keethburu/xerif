@@ -80,7 +80,11 @@ heading.
 Hand-written expected fragments cover body output with color retained or
 removed, TOC, running heads with color retained or removed, bookmark filtering,
 subtitles, explicit title abbreviations, nested colored phrases, combined role
-styles, direct normal-weight/upright overrides, and footnote-only phrases. They require
+styles, direct normal-weight/upright overrides, and footnote-only phrases.
+Nested colored footnote-only phrases in titles and subtitles must dissolve their
+role wrapper in body output and leave no empty style wrapper in filtered destinations.
+The nested case's independent expected body output is `Outer\protect\footnote{OnlyNote}`.
+They require
 role-derived bold, italic, underline style and strike-through to survive color
 removal, while role-derived color stays suppressed, including on descendants
 without an inline color attribute. Break expectations preserve
