@@ -3537,15 +3537,7 @@
         </xsl:apply-templates>
       </xsl:when>
       <xsl:when test="$remove-textcolor eq true() or $toc-override eq true() or $bm-override eq true()">
-        <!-- Keep the source document context for inherited current-tree style/ID keys
-             and ancestor-dependent heading filters (including language and notes).
-             Remove this phrase's color and role fallback colors within it. -->
-        <xsl:variable name="phrase-without-color">
-          <xsl:apply-templates select="root(.)/node()" mode="xml2tex:heading-without-color">
-            <xsl:with-param name="heading-phrase" select="." tunnel="yes"/>
-          </xsl:apply-templates>
-        </xsl:variable>
-        <xsl:apply-templates select="xml2tex:heading-node-in-copy(., $phrase-without-color)" mode="#current">
+        <xsl:apply-templates select="xml2tex:heading-node-in-copy(., $xml2tex:headings-without-color)" mode="#current">
           <xsl:with-param name="remove-textcolor" as="xs:boolean?" select="$remove-textcolor" tunnel="yes"/>
           <xsl:with-param name="toc-override" as="xs:boolean?" select="$toc-override" tunnel="yes"/>
           <xsl:with-param name="bm-override" as="xs:boolean?" select="$bm-override" tunnel="yes"/>
@@ -3558,22 +3550,22 @@
     </xsl:choose>
   </xsl:template>
 
+  <xsl:variable name="xml2tex:headings-without-color" as="document-node()">
+    <xsl:document>
+      <xsl:apply-templates select="/node()" mode="xml2tex:heading-without-color"/>
+    </xsl:document>
+  </xsl:variable>
+
   <xsl:template match="@* | node()" mode="xml2tex:heading-without-color">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="@css:color" mode="xml2tex:heading-without-color">
-    <xsl:param name="heading-phrase" as="element(dbk:phrase)" tunnel="yes"/>
-    <xsl:if test="not(parent::* is $heading-phrase)
-                  and not(parent::css:rule/@name = $heading-phrase/descendant-or-self::*/@role)">
-      <xsl:copy/>
-    </xsl:if>
-  </xsl:template>
+  <xsl:template match="css:rule/@css:color
+                       | dbk:phrase[ancestor::dbk:title or ancestor::dbk:subtitle]/@css:color"
+                mode="xml2tex:heading-without-color"/>
 
-  <!-- Follow sibling positions rather than IDs: heading phrases need not have IDs,
-       and the complete copied document keeps existing ID lookups meaningful. -->
   <xsl:function name="xml2tex:heading-node-in-copy" as="node()">
     <xsl:param name="original" as="node()"/>
     <xsl:param name="copy" as="document-node()"/>

@@ -99,7 +99,7 @@ def stylesheet(config, inherited):
             template.append(copy.deepcopy(child))
         result.append(template)
     # Raw high-priority handlers and their copy helpers are used unchanged.
-    for node in config.xpath('xsl:template[contains(@match,"@css:color")] | xsl:template[@mode="xml2tex:heading-without-color"] | xsl:function[@name="xml2tex:heading-node-in-copy"]', namespaces=NS):
+    for node in config.xpath('xsl:template[contains(@match,"@css:color")] | xsl:template[@mode="xml2tex:heading-without-color"] | xsl:function[@name="xml2tex:heading-node-in-copy"] | xsl:variable[@name="xml2tex:headings-without-color"]', namespaces=NS):
         result.append(copy.deepcopy(node))
     for context in ("dbk:br", "dbk:indexterm", "dbk:title//dbk:footnote\n                    |dbk:subtitle//dbk:footnote\n                    |dbk:author//dbk:footnote"):
         node = config.xpath('c:template[normalize-space(@context)=$context]', namespaces=NS, context=" ".join(context.split()))
@@ -163,6 +163,10 @@ def main():
     with PySaxonProcessor(license=False) as processor, tempfile.TemporaryDirectory() as tmp:
         for name, select, parameters in cases:
             sheet = copy.deepcopy(style)
+            copy_probe = E.SubElement(sheet, f"{{{XSL}}}template", match="/*",
+                                      mode="xml2tex:heading-without-color", priority="100")
+            E.SubElement(copy_probe, f"{{{XSL}}}message").text = "document-copy"
+            E.SubElement(copy_probe, f"{{{XSL}}}next-match")
             driver = E.SubElement(sheet, f"{{{XSL}}}template", match="/")
             context_node = "/dbk:hub/dbk:chapter[2]/dbk:info" if name.startswith("explicit-") else "/dbk:hub/dbk:chapter[1]/dbk:info"
             context_loop = E.SubElement(driver, f"{{{XSL}}}for-each", select=context_node)
@@ -177,7 +181,12 @@ def main():
             path = Path(tmp) / "probe.xsl"
             path.write_bytes(E.tostring(sheet))
             executable = processor.new_xslt30_processor().compile_stylesheet(stylesheet_file=str(path))
+            executable.set_save_xsl_message(True)
             actual = executable.transform_to_string(source_file=str(source))
+            messages = executable.get_xsl_messages()
+            copy_count = messages.size if messages is not None else 0
+            if copy_count > 1:
+                failures.append(f"{name}: copied the document {copy_count} times; at most one is allowed")
             if actual == expected[name]:
                 print(f"PASS {name}")
             else:

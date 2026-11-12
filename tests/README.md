@@ -67,7 +67,7 @@ The runner verifies its SHA-256
 It makes no network requests. The optional `--config /absolute/path/to/latex.conf.xml`
 supports a before-fix negative control.
 
-The runner executes the checkout's actual colored-phrase handler and copy
+The runner executes the checkout's actual colored-phrase handler and shared document-copy
 helpers, the pinned inherited style key and seven style wrappers, and xerif's
 heading footnote/index/break filters. It takes destination selectors and tunnel
 parameters from the actual TOC and running-title configuration. Only the small
@@ -85,6 +85,8 @@ role-derived bold, italic, underline style and strike-through to survive color
 removal, while role-derived color stays suppressed, including on descendants
 without an inline color attribute. Break expectations preserve
 the existing distinction between TOC fallback and running/bookmark output.
+A copy-mode execution probe also requires at most one document copy per
+transformation, rejecting repeated full-book copies for sibling or nested phrases.
 The pre-fix configuration fails these output assertions.
 
 This is a mapping-level check, separate from the standard-library XML syntax
