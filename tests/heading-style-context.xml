@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- Original synthetic regression input, dedicated to the public domain (CC0-1.0). -->
+<hub xmlns="http://docbook.org/ns/docbook" xmlns:css="http://www.w3.org/1996/css" xml:lang="de">
+  <info><css:rules>
+    <css:rule name="Strong" css:font-weight="bold"/>
+    <css:rule name="Emphasis" css:font-style="italic"/>
+    <css:rule name="Decorated" css:text-decoration-line="underline line-through" css:text-decoration-style="double"/>
+    <css:rule name="ColoredStrong" css:font-weight="bold" css:color="#FF0000"/>
+    <css:rule name="Combined" css:font-weight="bold" css:font-style="italic" css:text-decoration-line="underline line-through" css:text-decoration-style="double"/>
+    <css:rule name="ColoredEmphasis" css:font-style="italic" css:color="#FF0000"/>
+  </css:rules></info>
+  <chapter xml:id="chapter-1"><info>
+    <title xml:id="title-1"><phrase css:color="#FF0000" role="Strong">Bold</phrase>|<phrase css:color="#FF0000" role="Emphasis">Italic</phrase>|<phrase css:color="#FF0000" role="Decorated">Decorated</phrase>|<phrase css:color="#FF0000" role="Strong" css:font-weight="normal">Normal</phrase>|<phrase css:color="#FF0000" role="Emphasis" css:font-style="normal">Upright</phrase>|<phrase css:color="#FF0000" role="ColoredStrong">RoleColor</phrase>|<phrase css:color="#FF0000" role="Strong">Before<br/>After<footnote><para>Note</para></footnote><indexterm><primary>Index</primary></indexterm><phrase css:color="#FF0000" role="Emphasis">Nested</phrase></phrase>|<phrase css:color="#FF0000"><footnote><para>OnlyNote</para></footnote></phrase>|<phrase css:color="#FF0000" role="Context"><link linkend="outside">Context</link></phrase></title>
+    <subtitle><phrase css:color="#FF0000" role="Emphasis">Subtitle<br/>Next<footnote><para>SubNote</para></footnote></phrase>|<phrase css:color="#FF0000" role="Combined">Combined</phrase></subtitle>
+  </info><para><anchor xml:id="outside" xreflabel="Target"/></para></chapter>
+  <chapter xml:id="chapter-2"><info>
+    <title><phrase css:color="#FF0000" role="Strong">Fallback</phrase></title>
+    <titleabbrev role="toc-title"><phrase css:color="#FF0000" role="Emphasis">ExplicitTOC</phrase></titleabbrev>
+    <titleabbrev role="running"><phrase css:color="#FF0000" role="Strong">ExplicitRun</phrase></titleabbrev>
+  </info></chapter>
+  <chapter><info><title><phrase css:color="#FF0000" role="Strong">Outer<phrase role="ColoredEmphasis">RoleOnly</phrase></phrase></title></info></chapter>
+</hub>

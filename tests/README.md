@@ -50,3 +50,44 @@ identity when no reference role survives; this renderer does not guess it back.
 These focused checks do not establish general house-style suitability or full
 publication approval. Both remain content-dependent. No numbering policy,
 page-wide note layout, or publication-ready setting is introduced here.
+
+## Colored heading style context regression
+
+`heading-style-context.xml` is original synthetic CC0-1.0 input. Run the focused
+XSLT regression with Python, `lxml==5.2.1`, and `saxonche==12.9.0`:
+
+```sh
+python3 -B tests/heading-style-context.py --docx2tex-conf /absolute/path/to/docx2tex/conf/conf.xml
+```
+
+Use the plain XML [inherited mapping at docx2tex commit
+6e1ffe7d259888f47ab3f311edc24b2e4c69147b](https://github.com/transpect/docx2tex/blob/6e1ffe7d259888f47ab3f311edc24b2e4c69147b/conf/conf.xml).
+The runner verifies its SHA-256
+`3bb06322d00f3f275dfaa7a2d537dce46800628c2b76e26fecba06a6269c6a99`.
+It makes no network requests. The optional `--config /absolute/path/to/latex.conf.xml`
+supports a before-fix negative control.
+
+The runner executes the checkout's actual colored-phrase handler and copy
+helpers, the pinned inherited style key and seven style wrappers, and xerif's
+heading footnote/index/break filters. It takes destination selectors and tunnel
+parameters from the actual TOC and running-title configuration. Only the small
+command/parameter subset needed by these filters is lowered to XSLT in the
+harness; this does not execute the complete xml2tex generator. Color-name
+helpers are fixed to the fixture's red input. An instrumented link checks
+ancestor language, chapter/title IDs, and a current-tree ID lookup outside the
+heading.
+
+Hand-written expected fragments cover body output with color retained or
+removed, TOC, running heads with color retained or removed, bookmark filtering,
+subtitles, explicit title abbreviations, nested colored phrases, combined role
+styles, direct normal-weight/upright overrides, and footnote-only phrases. They require
+role-derived bold, italic, underline style and strike-through to survive color
+removal, while role-derived color stays suppressed, including on descendants
+without an inline color attribute. Break expectations preserve
+the existing distinction between TOC fallback and running/bookmark output.
+The pre-fix configuration fails these output assertions.
+
+This is a mapping-level check, separate from the standard-library XML syntax
+CI. It does not certify generated TeX in the complete pipeline or PDF output.
+Full rendering additionally requires Docker and the immutable Scripello check
+image described above; XML/XSLT-only results do not establish PDF correctness.
