@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 XSL = "http://www.w3.org/1999/XSL/Transform"
 CONF = "http://transpect.io/xml2tex"
 NS = {"xsl": XSL, "c": CONF}
-INHERITED_SHA256 = "3bb06322d00f3f275dfaa7a2d537dce46800628c2b76e26fecba06a6269c6a99"
+INHERITED_SHA256 = "dee9e30f77fd71e473494cf3958b14f2e2d6f652bbc76e3384e7d74738f7c1e9"
 
 
 def xsl(name, **attributes):

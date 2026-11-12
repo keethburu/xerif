@@ -63,7 +63,7 @@ python3 -B tests/heading-style-context.py --docx2tex-conf /absolute/path/to/docx
 Use the plain XML [inherited mapping at docx2tex commit
 6e1ffe7d259888f47ab3f311edc24b2e4c69147b](https://github.com/transpect/docx2tex/blob/6e1ffe7d259888f47ab3f311edc24b2e4c69147b/conf/conf.xml).
 The runner verifies its SHA-256
-`3bb06322d00f3f275dfaa7a2d537dce46800628c2b76e26fecba06a6269c6a99`.
+`dee9e30f77fd71e473494cf3958b14f2e2d6f652bbc76e3384e7d74738f7c1e9`.
 It makes no network requests. The optional `--config /absolute/path/to/latex.conf.xml`
 supports a before-fix negative control.
 
