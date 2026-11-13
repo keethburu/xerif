@@ -22,6 +22,21 @@ baseline is also required to fail the independent heading output assertions,
 so an import or download error cannot satisfy the negative control. This job is
 limited to the heading backport and does not render PDFs.
 
+The same job runs `heading-config-schema.py` through lxml's real Relax NG
+validator against the complete mapping. It uses the installed XML2TeX grammar
+from commit `9d50c5185ed811cd3e9f2b946a5b720fd750b46a`, with SHA-256
+`7c0832c800373fcdaac8df87b41ce2adbe4b5156c5d57500a8a1d5e1064a5181`.
+The included `xslt2.rng` is checksum-verified too. The landed heading backport
+at `3c2e95780c046105ed5c7aac4737e8c110c379d0` must be rejected specifically
+at its unsupported explicit document constructor, while the current mapping
+must validate. An untyped variable with sequence-constructor content creates
+an implicit document node in XSLT 2.0, preserving the shared copy while using
+instructions supported by this configuration grammar.
+
+```sh
+python3 -B tests/heading-config-schema.py --schema /absolute/path/to/schema/xml2tex.rng --landed-config /absolute/path/to/landed-latex.conf.xml
+```
+
 The runner executes the checkout's actual colored-phrase handler and shared document-copy
 helpers, the pinned inherited style key and seven style wrappers, and xerif's
 heading footnote/index/break filters. It takes destination selectors and tunnel

@@ -41,6 +41,13 @@ jobs:
           curl --fail --location --retry 2 --max-time 30 https://raw.githubusercontent.com/keethburu/xerif/1b66ab8984fc3a1e9eee942912d3cf040fbad515/xml2tex/latex.conf.xml -o "$RUNNER_TEMP/heading-baseline.xml"
           printf '%s  %s\n' dee9e30f77fd71e473494cf3958b14f2e2d6f652bbc76e3384e7d74738f7c1e9 "$RUNNER_TEMP/docx2tex-conf.xml" | sha256sum --check -
           printf '%s  %s\n' 283e0f2a6ba4be592f8c531b19860f0575d884cd4c40cbf097b1ba6f9275f947 "$RUNNER_TEMP/heading-baseline.xml" | sha256sum --check -
+      - name: Validate mapping with installed XML2TeX schema
+        shell: bash
+        run: |
+          curl --fail --location --retry 2 --max-time 30 https://raw.githubusercontent.com/transpect/xml2tex/9d50c5185ed811cd3e9f2b946a5b720fd750b46a/schema/xml2tex.rng -o "$RUNNER_TEMP/xml2tex.rng"
+          curl --fail --location --retry 2 --max-time 30 https://raw.githubusercontent.com/transpect/xml2tex/9d50c5185ed811cd3e9f2b946a5b720fd750b46a/schema/xslt2.rng -o "$RUNNER_TEMP/xslt2.rng"
+          curl --fail --location --retry 2 --max-time 30 https://raw.githubusercontent.com/keethburu/xerif/3c2e95780c046105ed5c7aac4737e8c110c379d0/xml2tex/latex.conf.xml -o "$RUNNER_TEMP/heading-landed.xml"
+          python -B tests/heading-config-schema.py --schema "$RUNNER_TEMP/xml2tex.rng" --landed-config "$RUNNER_TEMP/heading-landed.xml"
       - name: Run heading regression
         run: python -B tests/heading-style-context.py --docx2tex-conf "$RUNNER_TEMP/docx2tex-conf.xml"
       - name: Require installed-baseline negative control to fail its output assertions
