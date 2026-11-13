@@ -97,3 +97,26 @@ This is a mapping-level check, separate from the standard-library XML syntax
 CI. It does not certify generated TeX in the complete pipeline or PDF output.
 Full rendering additionally requires Docker and the immutable Scripello check
 image described above; XML/XSLT-only results do not establish PDF correctness.
+
+## Heading configuration schema regression
+
+The shared heading-copy variable uses an implicit document node because the
+installed XML2TeX configuration grammar rejects an explicit `xsl:document`.
+Run the complete mapping through the actual Relax NG validator:
+
+```sh
+python3 -B tests/heading-config-schema.py --schema /absolute/path/to/schema/xml2tex.rng
+```
+
+Use `schema/xml2tex.rng` and its sibling `schema/xslt2.rng` from
+[XML2TeX commit 9d50c5185ed811cd3e9f2b946a5b720fd750b46a](https://github.com/transpect/xml2tex/tree/9d50c5185ed811cd3e9f2b946a5b720fd750b46a/schema).
+The checker pins both installed schema checksums in its `SCHEMA_SHA256` and
+`XSLT_SCHEMA_SHA256` constants. Optional `--baseline-config` accepts only the
+original main mapping at `d001ddcbef646f419ae978c50de4741af90052fa` and requires
+its rejection specifically at the unsupported document constructor.
+
+The five-minute heading CI job runs this schema check, all 22 heading cases
+and the shared-copy probe, and the installed-baseline output negative control.
+It uses pinned actions, Python and wheel hashes with read-only permissions.
+These checks complement the existing XML syntax CI; they do not run the full
+XML2TeX generator or establish a whole-corpus or PDF pass.
