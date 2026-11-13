@@ -14,6 +14,14 @@ The runner verifies its SHA-256
 It makes no network requests. The optional `--config /absolute/path/to/latex.conf.xml`
 supports a before-fix negative control.
 
+The dedicated `scripello/heading-context` branch and its pull requests run these
+22 cases in the five-minute **Heading context regression** CI job. It pins Python,
+the two Python wheels, action revisions, and both downloaded mapping inputs;
+wheel and mapping SHA-256 checks reject changed dependencies. The installed
+baseline is also required to fail the independent heading output assertions,
+so an import or download error cannot satisfy the negative control. This job is
+limited to the heading backport and does not render PDFs.
+
 The runner executes the checkout's actual colored-phrase handler and shared document-copy
 helpers, the pinned inherited style key and seven style wrappers, and xerif's
 heading footnote/index/break filters. It takes destination selectors and tunnel
