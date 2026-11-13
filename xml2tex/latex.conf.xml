@@ -3550,10 +3550,10 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:variable name="xml2tex:headings-without-color" as="document-node()">
-    <xsl:document>
-      <xsl:apply-templates select="/node()" mode="xml2tex:heading-without-color"/>
-    </xsl:document>
+  <!-- Keep this variable untyped so its content creates an implicit document node.
+       The installed XML2TeX grammar rejects xsl:document; see tests/heading-config-schema.py. -->
+  <xsl:variable name="xml2tex:headings-without-color">
+    <xsl:apply-templates select="/node()" mode="xml2tex:heading-without-color"/>
   </xsl:variable>
 
   <xsl:template match="@* | node()" mode="xml2tex:heading-without-color">

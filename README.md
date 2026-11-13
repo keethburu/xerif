@@ -155,7 +155,9 @@ Pass explicit file paths to check individual files, including untracked ones.
 The tests also require malformed configuration and stylesheet fixtures to fail
 that same command.
 
-This is a syntax gate, not schema validation or a full pipeline execution.
+The separate five-minute heading regression job validates the complete mapping
+against the pinned installed XML2TeX schema and executes focused heading
+transformations and negative controls; see [the test instructions](tests/README.md#heading-configuration-schema-regression).
 Rendering, corpus comparisons, and container-image builds remain local acceptance
 checks; GitHub Actions does not run them.
 
