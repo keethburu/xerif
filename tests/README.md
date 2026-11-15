@@ -140,8 +140,9 @@ bash tests/styled-link-context.sh --measure
 Docker must already have the immutable image. The runner never pulls/builds an
 image. It waits at most 120 seconds for the supplied shared lock, then runs one
 serial container with a 180-second timeout, three CPUs, 4 GiB RAM, no additional
-swap and a 3072 MiB Java heap. Output, generated stylesheets, runtime/source
-checksums and logs stay in the caller's scratch directory. The selected Saxon
+swap and a 3072 MiB Java heap. Output, generated stylesheets, runtime
+checksums and logs stay in the caller's scratch directory; checkout HEAD, image
+ID and source checksums are printed to stdout. The selected Saxon
 jar's checksum and actual version are verified.
 
 Hand-written TeX assertions cover nested index range ends, parent-sensitive
