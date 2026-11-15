@@ -63,6 +63,9 @@ xerif handles complex publishing requirements out of the box:
 - Automatic tables of contents and lists
 - Professional page breaking and pagination
 
+Styled external-link text preserves ancestor styling, inherited language and
+index range references while retaining link escaping and line breaks.
+
 For automatic note references and diagnostics requiring publication review, see
 the [supported reference semantics](tests/README.md#supported-reference-semantics).
 

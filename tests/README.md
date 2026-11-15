@@ -120,3 +120,61 @@ and the shared-copy probe, and the installed-baseline output negative control.
 It uses pinned actions, Python and wheel hashes with read-only permissions.
 These checks complement the existing XML syntax CI; they do not run the full
 XML2TeX generator or establish a whole-corpus or PDF pass.
+
+## Styled link context regression
+
+`styled-link-context.xml` is public synthetic CC0-1.0 input. The full regression
+runs the image's actual Calabash generator and Java Saxon HE 10.5, with this
+checkout's mapping overlaid read-only. It uses no PDF renderer, private fonts,
+network or extracted/stubbed mapping. The known local evidence image is
+`ghcr.io/keethburu/scripello-worker-check@sha256:ded69ce10466b9d20d6a14520c57de161897d35ab63a2035f13451e974c2185a`;
+this historical image is a test input, not a current runtime release.
+
+```sh
+XERIF_TEST_IMAGE=sha256:ded69ce10466b9d20d6a14520c57de161897d35ab63a2035f13451e974c2185a \
+XERIF_TEST_OUTPUT=/absolute/scratch/candidate \
+XERIF_TEST_LOCK=/absolute/shared-renderer.lock \
+bash tests/styled-link-context.sh --measure
+```
+
+Docker must already have the immutable image. The runner never pulls/builds an
+image. It waits at most 120 seconds for the supplied shared lock, then runs one
+serial container with a 180-second timeout, three CPUs, 4 GiB RAM, no additional
+swap and a 3072 MiB Java heap. Output, generated stylesheets, runtime
+checksums and logs stay in the caller's scratch directory; checkout HEAD, image
+ID and source checksums are printed to stdout. The selected Saxon
+jar's checksum and actual version are verified.
+
+Hand-written TeX assertions cover nested index range ends, parent-sensitive
+underline/color suppression, inherited and explicit language, role styles and
+direct overrides, sibling/deep inline content, one-pass URL escaping and breaks,
+notes with/without IDs, links inside notes, internal/plain/URL-equals-text links,
+and non-link controls. A heading link checks body color/notes, filtered TOC style,
+and plain bookmark text. A separate executable probe inspects returned nodes'
+ancestors, language and real current-tree style/ID keys.
+
+Diagnostic instrumentation observes actual replacement-function entries, shared
+context construction and additive style-key visits on generated XSLT. Seven and
+fourteen links, with two depth-three children each and thirteen/twenty-six CSS
+rules, must each build one shared link context and one style index on each of the
+source and shared trees. Plain-text-only links must avoid a link-context copy.
+The existing color-filtered heading tree is derived from that shared tree when
+needed for heading links, so their text is never replaced twice. Notes in copied
+link content return to their original nodes for identity-based numbering.
+
+For an independent before-fix control, set `XERIF_TEST_CONFIG` to the original
+mapping from xerif `0d7ca05322a15d1c5ad15ed0a4665b6293f80d7a`, use a separate
+output directory and add `--baseline`. This requires the same common output
+controls while explicitly reproducing missing nested range terms, changed
+parent/language selections and repeated CSS-bearing copies/key construction.
+It does not accept those defects as candidate behavior.
+
+`--measure` reports first-transform time, the median of three later transforms
+and transform-thread allocation for synthetic 400-link inputs with 1,000 retained
+rules or zero rules/direct styles. The zero-rule control has a materialized shape;
+it does not execute Scripello assembly. Compilation, parsing, escape preprocessing
+and serialization are outside the transform timer. Allocation is cumulative
+churn, not live heap; process high-water RSS includes compilation and prior runs.
+These limited local measurements do not establish normal Scripello latency or
+PDF correctness. A styled-link transformation keeps one additional full source
+context tree; its cost also depends on the rest of the document.

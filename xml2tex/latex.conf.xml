@@ -3202,45 +3202,96 @@
   <!-- escape special characters in \url and \href inside footnotes
        https://redmine.le-tex.de/issues/5376 -->  
 
+  <!-- One lazy source-context tree per transformation replaces the former
+       CSS-bearing document per inline child. Keep ancestors, IDs and language:
+       inherited templates must make the same selections as on the source. -->
+  <xsl:variable name="xml2tex:links-with-breaks">
+    <xsl:apply-templates select="/node()" mode="xml2tex:link-context"/>
+  </xsl:variable>
+
   <xsl:function name="xml2tex:replace-recursive-linktext" as="node()*">
     <xsl:param name="nodes" as="node()*"/>
-     <xsl:for-each select="$nodes">
-       <xsl:choose>
-         <xsl:when test=".[self::text()]"><xsl:sequence select="xml2tex:add-tactical-breaks-by-string-length(xml2tex:add-tactical-break-chars-in-linktext(.))"/></xsl:when>
-         <xsl:when test=".[self::dbk:indexterm | self::dbk:footnote]"><xsl:sequence select="."/></xsl:when>
-         <xsl:otherwise>
-           <xsl:variable name="replacement">
-             <xsl:copy-of select="root(.)//css:rules"/>
-             <xsl:apply-templates select="." mode="copy">
-               <xsl:with-param name="replace-linktext" as="xs:boolean" select="true()" tunnel="yes"/>
-             </xsl:apply-templates>
-           </xsl:variable>
-           <xsl:sequence select="$replacement/node() except $replacement/css:rules"/>
-         </xsl:otherwise>
-       </xsl:choose>
-     </xsl:for-each>
+    <xsl:for-each select="$nodes">
+      <xsl:choose>
+        <!-- Heading context is derived from the link-context tree below, so
+             its text already has breaks. Never replace that text twice. -->
+        <xsl:when test="not(root(.) is root($root))">
+          <xsl:sequence select="."/>
+        </xsl:when>
+        <xsl:when test="self::text()">
+          <xsl:sequence select="xml2tex:add-tactical-breaks-by-string-length(xml2tex:add-tactical-break-chars-in-linktext(.))"/>
+        </xsl:when>
+        <xsl:when test="self::dbk:indexterm | self::dbk:footnote">
+          <xsl:sequence select="."/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:sequence select="xml2tex:link-node-in-copy(., $xml2tex:links-with-breaks)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:for-each>
   </xsl:function>
 
-  <xsl:template match="@* | node()"  mode="copy">
-    <xsl:copy copy-namespaces="no">
-      <xsl:apply-templates select="@*, node()" mode="copy"/>
+  <!-- Note numbering can use generate-id() for notes without xml:id.
+       Render copied link notes on the corresponding original node, retaining
+       the caller's destination and note tunnel parameters. -->
+  <xsl:template match="dbk:footnote[ancestor::dbk:link]" mode="xml2tex" priority="100001">
+    <xsl:choose>
+      <xsl:when test="root(.) is root($root)">
+        <xsl:next-match/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="xml2tex:link-node-in-copy(., root($root))" mode="#current"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:function name="xml2tex:link-node-in-copy" as="node()">
+    <xsl:param name="original" as="node()"/>
+    <xsl:param name="copy" as="document-node()"/>
+    <xsl:sequence select="if ($original/parent::node())
+                          then xml2tex:link-node-in-copy($original/parent::node(), $copy)
+                               /node()[count($original/preceding-sibling::node()) + 1]
+                          else $copy"/>
+  </xsl:function>
+
+  <xsl:template match="@* | node()" mode="xml2tex:link-context">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
-  
-  <xsl:template match="text()" mode="copy" priority="100">
-    <xsl:param name="replace-linktext" as="xs:boolean?" tunnel="yes"/>
-    <xsl:value-of select="if ($replace-linktext) 
-                          then xml2tex:add-tactical-breaks-by-string-length(xml2tex:add-tactical-break-chars-in-linktext(.)) 
+
+  <!-- Only the href rule below replaces visible link text. Preserve ordinary
+       internal links, URL-equals-text links, notes and index content verbatim. -->
+  <xsl:template match="dbk:link" mode="xml2tex:link-context">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current">
+        <xsl:with-param name="replace-linktext" as="xs:boolean" tunnel="yes"
+                        select="exists(@xlink:href)
+                                and ((@xlink:href != . and (matches(@xlink:href, '^(https?|ftp):') or matches(., '^(https?|ftp):')))
+                                     or matches(@xlink:href, 'mailto:|@'))
+                                and not(@xlink:href = replace(.,'\\([#%_])','$1')
+                                        and (matches(@xlink:href, '^(https?|ftp):') or matches(., '^(https?|ftp):'))
+                                        and not(matches(@xlink:href, 'mailto:|@'))
+                                        and (not(dbk:phrase) or dbk:phrase[@role = 'Hyperlink']))"/>
+      </xsl:apply-templates>
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="text()" mode="xml2tex:link-context" priority="2">
+    <xsl:param name="replace-linktext" as="xs:boolean" select="false()" tunnel="yes"/>
+    <xsl:value-of select="if ($replace-linktext)
+                          then xml2tex:add-tactical-breaks-by-string-length(xml2tex:add-tactical-break-chars-in-linktext(.))
                           else ."/>
   </xsl:template>
 
-  <xsl:template mode="copy" match="dbk:indexterm | dbk:footnote" priority="2">
-    <xsl:copy-of select="."/>
+  <xsl:template match="dbk:indexterm | dbk:footnote" mode="xml2tex:link-context">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current">
+        <xsl:with-param name="replace-linktext" as="xs:boolean" select="false()" tunnel="yes"/>
+      </xsl:apply-templates>
+    </xsl:copy>
   </xsl:template>
-  
-  <xsl:template match="dbk:link/@xml:lang
-                      |dbk:link/*/@xml:lang" mode="copy"/>
-  
+
   <xsl:function name="xml2tex:add-tactical-breaks-by-string-length">
     <xsl:param name="url" as="xs:string"/>
     <xsl:variable select="string-join(
@@ -3288,10 +3339,11 @@
   
   <template context="dbk:link[@xlink:href != .][@xlink:href][matches(@xlink:href, '^(https?|ftp):') or matches(., '^(https?|ftp):')]|
                      dbk:link[matches(@xlink:href, 'mailto:|@')]">
+    <xsl:variable name="link-content" as="node()*" select="xml2tex:replace-recursive-linktext(node())"/>
     <!-- this only works if option 'collect-all-xsl' on xml2tex is set to yes. otherwise templates matching the same elements in different modes will not be considered -->
     <rule name="href" type="cmd">
       <param select="replace(xml2tex:optionally-encode-uri((@url, @xlink:href)[1]), '(%|#|_|\\)', '\\$1' )"/>
-      <param select="xml2tex:replace-recursive-linktext(node())"/>
+      <param select="$link-content"/>
     </rule>
   </template>
   
@@ -3553,7 +3605,7 @@
   <!-- Keep this variable untyped so its content creates an implicit document node.
        The installed XML2TeX grammar rejects xsl:document; see tests/heading-config-schema.py. -->
   <xsl:variable name="xml2tex:headings-without-color">
-    <xsl:apply-templates select="/node()" mode="xml2tex:heading-without-color"/>
+    <xsl:apply-templates select="if (//dbk:link[@xlink:href][ancestor::dbk:title or ancestor::dbk:subtitle]) then $xml2tex:links-with-breaks/node() else /node()" mode="xml2tex:heading-without-color"/>
   </xsl:variable>
 
   <xsl:template match="@* | node()" mode="xml2tex:heading-without-color">
