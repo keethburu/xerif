@@ -3,8 +3,12 @@
 Run from this repository on the local render machine:
 
 ```sh
+XERIF_TEST_LOCK=/absolute/shared-state/scripello-heavy.lock \
 bash tests/title-language/run.sh /absolute/fresh/proof-directory
 ```
+
+`XERIF_TEST_LOCK` is required and must be absolute. Supply the same shared lock
+path used by every other heavy rendering job on the machine.
 
 The runner uses the pinned Scripello check image only as a transpect/CoCoTeX,
 LuaLaTeX, approved-font and veraPDF **toolchain**. It mounts this checkout's
@@ -12,7 +16,7 @@ LuaLaTeX, approved-font and veraPDF **toolchain**. It mounts this checkout's
 configuration baked into that image. HEAD, uncommitted diff, input checksums,
 base image digest, expanded Hub fixtures, generated TeX/TOC, glyph observations,
 PDF text, PDFs and validator reports remain in the proof directory. It runs
-locally under `/home/fm/fm-home/state/scripello-heavy.lock`, with no network,
+locally holding `XERIF_TEST_LOCK` across all cases, with no network,
 3 CPUs / 4 GiB, a 600-second case limit and 180-second tool limits. It does not
 start hosted rendering jobs or require private fonts or a reference PDF.
 

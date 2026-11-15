@@ -4,6 +4,8 @@ set -euo pipefail
 repo=$(git -C "$(dirname -- "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)
 proof=${1:?usage: run.sh ABSOLUTE_FRESH_PROOF_DIRECTORY [BASE_REVISION]}
 base_revision=${2:-e893853}
+shared_lock=${XERIF_TEST_LOCK:?Set XERIF_TEST_LOCK to the absolute shared heavy-work lock path}
+case "$shared_lock" in /*) ;; *) echo 'Shared lock path must be absolute' >&2; exit 2;; esac
 case "$proof" in /*) ;; *) echo 'Proof directory must be absolute' >&2; exit 2;; esac
 if [ -e "$proof" ]; then echo 'Proof directory must be fresh' >&2; exit 2; fi
 mkdir -p "$proof/reference"
@@ -25,7 +27,7 @@ run_case() {
     > "$proof/$name.log" 2>&1
 }
 # Shared heavy lock covers every real render/validator; each case has a finite bound.
-exec 9>/home/fm/fm-home/state/scripello-heavy.lock
+exec 9>"$shared_lock"
 flock 9
 run_case fixed "$repo/xml2tex/latex.conf.xml"
 run_case fixed-standard-toc "$repo/xml2tex/latex.conf.xml" --standard-toc
