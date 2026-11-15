@@ -1,0 +1,30 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{language-test}[Title language regression layout]
+\DeclareOption{layout=c}{}
+\ProcessOptions\relax
+\RequirePackage{scripello-default}
+\newattribute\languageTestContext
+\directlua{dofile('/tests/probe.lua')}
+\DeclareRobustCommand\LanguageTestContext[1]{\languageTestContext=#1\relax}
+\tpDeclareHeading{0}{chapter}{%
+  \tpSetProperty{heading-par}{\clearpage\par}%
+  \tpSetProperty{heading-block}{%
+    {\LanguageTestContext{1}\tpUseComp{Title}\par}%
+    {\LanguageTestContext{2}\tpUseComp{Subtitle}\par}}%
+  \tpSetProperty{running-heading}{%
+    \protect\LanguageTestContext{5}\tpUseComp{RunTitle}\space
+    \protect\LanguageTestContext{6}\tpUseComp{RunSubtitle}}%
+  \tpSetProperty{toc-format}{%
+    {\LanguageTestContext{3}\tpUseComp{TocTitle}}\space
+    {\LanguageTestContext{4}\tpUseComp{TocSubtitle}}\par}%
+}
+\pagestyle{headings}
+\AtBeginDocument{%
+  \begingroup
+    \selectlanguage{ngerman}\typeout{LANGUAGE-ID ngerman=\the\language}%
+    \selectlanguage{english}\typeout{LANGUAGE-ID english=\the\language}%
+    \selectlanguage{french}\typeout{LANGUAGE-ID french=\the\language}%
+    \selectlanguage{greek}\typeout{LANGUAGE-ID greek=\the\language}%
+    \selectlanguage{hebrew}\typeout{LANGUAGE-ID hebrew=\the\language}%
+  \endgroup\LanguageTestContext{7}}
+\endinput

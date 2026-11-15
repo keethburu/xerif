@@ -1,0 +1,24 @@
+<hub xmlns="http://docbook.org/ns/docbook" xml:lang="de">
+  <info><title>Sprachprobe</title></info>
+  <chapter xml:id="plain"><info>
+    <title xml:lang="en">Internationalization</title>
+    <subtitle xml:lang="fr">Communication</subtitle>
+  </info><para>Umgebungskontrolle deutsche Silbentrennung.</para></chapter>
+  <chapter xml:id="scripts"><info>
+    <title xml:lang="el">Ελληνικά</title>
+    <subtitle xml:lang="he">עברית</subtitle>
+  </info><para>Umgebungskontrolle deutsche Silbentrennung.</para></chapter>
+  <chapter xml:id="filtered"><info>
+    <title xml:lang="en">Representation<br/>Research<footnote><para>Nur im Haupttext sichtbare Anmerkung.</para></footnote></title>
+    <subtitle xml:lang="fr">Organisation</subtitle>
+  </info><para>Umgebungskontrolle deutsche Silbentrennung.</para></chapter>
+  <chapter xml:id="untagged"><info>
+    <title><phrase role="hub:identifier">4</phrase><emphasis>Sprachkontrolle</emphasis></title><subtitle>Untertitelkontrolle</subtitle>
+  </info><para>Umgebungskontrolle deutsche Silbentrennung.</para></chapter>
+  <chapter xml:id="inherited" xml:lang="en"><info>
+    <title>Inheritance</title><subtitle>Surroundings</subtitle>
+  </info><para>Inherited chapter body remains in English.</para></chapter>
+  <chapter xml:id="restored"><info>
+    <title>Wiederherstellung</title><subtitle>Sprachumgebung</subtitle>
+  </info><para>Umgebungskontrolle deutsche Silbentrennung.</para></chapter>
+</hub>
