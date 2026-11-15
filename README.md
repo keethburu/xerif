@@ -71,12 +71,15 @@ the [supported reference semantics](tests/README.md#supported-reference-semantic
 
 ### Accessibility
 
-xerif can create standards-compliant accessible PDFs:
+xerif includes support for accessible PDF production:
 
 - PDF/UA output
 - PDF tagging
 - Alternative texts
 - Metadata for assistive technologies
+
+For the pinned language-regression toolchain's current limits, see the
+[measured accessibility limit](tests/title-language/README.md#measured-accessibility-limit).
 
 ### Multilingual publishing
 
@@ -84,11 +87,12 @@ Thanks to Unicode, OpenType fonts, and advanced hyphenation support,
 xerif supports many writing systems, including Latin-based languages,
 Arabic, Hebrew, Chinese, Japanese, and Korean.
 
-In Hub XML, a title or subtitle with its own `xml:lang` uses the corresponding
-Babel language in the body, running heads, and table of contents. Headings
-without their own `xml:lang` retain the existing language inheritance.
+In Hub XML, a chapter title or subtitle with its own `xml:lang` uses the
+corresponding Babel language in the body and when reused in running heads and
+the table of contents. Headings without their own `xml:lang` retain the existing
+language inheritance.
 See the [language regression](tests/title-language/README.md) for verification
-details and the tagged-PDF accessibility limit of its pinned toolchain.
+details.
 
 ### Multiple input and output formats
 
