@@ -1,0 +1,33 @@
+<!-- Original public synthetic input; CC0-1.0. -->
+<hub xmlns="http://docbook.org/ns/docbook" xmlns:css="http://www.w3.org/1996/css" xmlns:xlink="http://www.w3.org/1999/xlink" xml:lang="en" version="5.0">
+<info><title>Scout book</title><css:rules>
+<css:rule name="Strong" css:font-weight="bold"/><css:rule name="Em" css:font-style="italic"/>
+<css:rule name="Under" css:text-decoration-line="underline"/><css:rule name="Strike" css:text-decoration-line="line-through"/>
+<css:rule name="Red" css:color="#FF0000"/><css:rule name="French" xml:lang="fr"/>
+</css:rules></info>
+<chapter xml:id="chapter"><info><title>Title <phrase role="Strong">TitleBold</phrase></title></info>
+<para>NonLink[<phrase css:color="#FF0000">OutsideDirectRed</phrase>|<phrase role="Strong">OutsideBold</phrase>|<phrase role="Under">OutsideUnder</phrase>|<phrase role="Red">OutsideRed</phrase>]</para>
+<para>Bold[<link xlink:href="https://example.org/a_b?x=1&amp;y=2%20z#dest"><phrase role="Strong">Bold</phrase></link>]</para>
+<para>Italic[<link xlink:href="https://example.org/target"><phrase role="Em">Italic</phrase></link>]</para>
+<para>Strike[<link xlink:href="https://example.org/target"><phrase role="Strike">Strike</phrase></link>]</para>
+<para>Normal[<link xlink:href="https://example.org/target"><phrase role="Strong" css:font-weight="normal">Normal</phrase></link>]</para>
+<para>Upright[<link xlink:href="https://example.org/target"><phrase role="Em" css:font-style="normal">Upright</phrase></link>]</para>
+<para>Nested[<link xlink:href="https://example.org/target"><phrase role="Strong">Before<phrase role="Em">Nested</phrase>After</phrase></link>]</para>
+<para>Under[<link xlink:href="https://example.org/target"><phrase role="Under">Under</phrase></link>]</para>
+<para>DirectColor[<link xlink:href="https://example.org/target"><phrase css:color="#FF0000">DirectColor</phrase></link>]</para>
+<para>RoleColor[<link xlink:href="https://example.org/target"><phrase role="Red">RoleColor</phrase></link>]</para>
+<para>Lang[<link xml:lang="de" xlink:href="https://example.org/target"><phrase role="Strong" xml:lang="fr">DirectFrench|<phrase xml:lang="fr">NestedFrench</phrase></phrase></link>]</para>
+<para>Break[<link xlink:href="https://example.org/target"><phrase role="Strong">a_b%#&amp;~{x}<br/>Next/abcdef?xyz=123</phrase></link>]</para>
+<para>Long[<link xlink:href="https://example.org/target"><phrase>abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789</phrase></link>]</para>
+<para><indexterm remap="idx" xml:id="range-start" class="startofrange"><primary>RangeTerm</primary></indexterm>IndexStart</para>
+<para>IDTop[<link xlink:href="https://example.org/target">Top<indexterm remap="idx" class="endofrange" startref="range-start"/></link>]</para>
+<para>IDNested[<link xlink:href="https://example.org/target"><phrase role="Strong">Inner<indexterm remap="idx" class="endofrange" startref="range-start"/></phrase></link>]</para>
+<para>Note[<link xlink:href="https://example.org/target"><phrase role="Strong">WithNote<footnote xml:id="fn"><para>NoteBody</para></footnote></phrase></link>]</para>
+<para>Internal[<link linkend="chapter">InternalText</link>]</para>
+<para>Plain[<link xlink:href="https://example.org/plain">PlainText</link>]</para>
+<para>Multi[<link xlink:href="https://example.org/multi"><phrase role="Strong">First/abc</phrase>|<phrase role="Em">Second?xyz</phrase><phrase role="Strong">Third<phrase role="Em">Deep</phrase></phrase></link>]</para>
+<para>Inherited[<link xlink:href="https://example.org/lang"><phrase role="Strong">English<phrase xml:lang="en">SameEnglish</phrase><phrase xml:lang="fr">French</phrase></phrase></link>]</para>
+<para>NoteBreak[<link xlink:href="https://example.org/note"><phrase role="Strong">Outer/abc<footnote xml:id="fn-break"><para>Note/abc?xyz=123 <link xlink:href="https://example.org/inner"><phrase role="Em">Inside/abc</phrase></link></para></footnote></phrase></link>]</para>
+<para>Ordinary[<phrase css:font-style="italic">Ordinary/abc?xyz=123</phrase>]</para>
+<para>SameURL[<link xlink:href="https://example.org/a_b">https://example.org/a_b</link>]</para>
+</chapter><chapter xml:id="heading-chapter"><info><title><phrase role="Strong" css:color="#FF0000">Heading <link xlink:href="https://example.org/title"><phrase role="Em">Title/abc<footnote xml:id="fn-title"><para>TitleNote</para></footnote></phrase></link></phrase></title></info><para>HeadingControl</para></chapter><index remap="idx"><title>Index</title></index></hub>

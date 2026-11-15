@@ -61,11 +61,14 @@ def stylesheet(config, inherited):
     # source order. No style predicate is reimplemented by this harness.
     result = E.fromstring(b'''<xsl:stylesheet version="2.0"
       xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-      xmlns:dbk="http://docbook.org/ns/docbook" xmlns:css="http://www.w3.org/1996/css"
+      xmlns:dbk="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:css="http://www.w3.org/1996/css"
       xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tr="http://transpect.io"
       xmlns:xml2tex="http://transpect.io/xml2tex">
       <xsl:output method="text"/>
       <xsl:variable name="root" select="/"/>
+      <!-- This focused fixture contains internal links only. External-link
+           replacement is exercised by styled-link-context.py on real generated XSLT. -->
+      <xsl:variable name="xml2tex:links-with-breaks" select="/"/>
       <xsl:variable name="verse-style" select="'verse'"/>
       <xsl:variable name="remove-textcolor-for-runningtitles" select="true()"/>
       <xsl:variable name="toc-header-regex" select="'^toc-title$'"/>
