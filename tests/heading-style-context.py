@@ -84,6 +84,12 @@ def stylesheet(config, inherited):
       </xsl:template>
       <xsl:function name="tr:hex-rgb-color-to-ints"><xsl:param name="color"/><xsl:sequence select="255, 0, 0"/></xsl:function>
       <xsl:function name="tr:color-hex-rgb-to-keyword"><xsl:param name="color"/><xsl:sequence select="'red'"/></xsl:function>
+      <!-- Own-language headings are exercised by tests/title-language. This
+           fixture must retain its output without invoking language conversion. -->
+      <xsl:function name="xml2tex:lang-to-babel-lang">
+        <xsl:param name="lang"/>
+        <xsl:sequence select="error((), 'Unexpected own-language heading in style-context fixture')"/>
+      </xsl:function>
     </xsl:stylesheet>''')
     for node in inherited.xpath('xsl:key[@name="style"] | xsl:variable[@name="text-style-elements"]', namespaces=NS):
         result.append(copy.deepcopy(node))
@@ -170,12 +176,18 @@ def main():
             expected[name] = output if destination != "body" else r"\textcolor{red}{" + output + "}"
             cases.append((name, f"/dbk:hub/dbk:chapter[4]/dbk:info/dbk:{heading}/node()", parameters))
     # Exercise actual destination selectors and tunnel settings from xerif.
+    destination_variables = {}
     for name, template, branch in (("toc", "customer-toctitles", "otherwise"), ("running", "col-titles", "when[2]"), ("explicit-toc", "customer-toctitles", "when[1]"), ("explicit-running", "col-titles", "when[1]")):
         param = config.xpath(f'c:template[@name="{template}"]/xsl:choose/xsl:{branch}/c:rule[@name="' + ("tpTocTitle" if "toc" in name else "tpRunTitle") + '"]/c:param', namespaces=NS)[0]
+        # Preserve both template-level selectors and rule-local language
+        # variables in document order, as they are scoped in the mapping.
+        destination_variables[name] = param.xpath(
+            'ancestor::c:template/xsl:variable | preceding-sibling::xsl:variable', namespaces=NS)
         cases.append((name, param.get("select"), {p.get("name"): p.get("select") for p in param}))
         if name == "running":
             parameters = dict(cases[-1][2], **{"remove-textcolor": "false()"})
             cases.append(("running-colored", param.get("select"), parameters))
+            destination_variables["running-colored"] = destination_variables[name]
     failures = []
     with PySaxonProcessor(license=False) as processor, tempfile.TemporaryDirectory() as tmp:
         for name, select, parameters in cases:
@@ -187,10 +199,7 @@ def main():
             driver = E.SubElement(sheet, f"{{{XSL}}}template", match="/")
             context_node = "/dbk:hub/dbk:chapter[2]/dbk:info" if name.startswith("explicit-") else "/dbk:hub/dbk:chapter[1]/dbk:info"
             context_loop = E.SubElement(driver, f"{{{XSL}}}for-each", select=context_node)
-            if name.startswith("explicit-"):
-                template_name = "customer-toctitles" if name == "explicit-toc" else "col-titles"
-                variable_name = "toctitle-para" if name == "explicit-toc" else "runtitle-para"
-                variable = config.xpath('c:template[@name=$template]/xsl:variable[@name=$variable]', namespaces=NS, template=template_name, variable=variable_name)[0]
+            for variable in destination_variables.get(name, ()):
                 context_loop.append(copy.deepcopy(variable))
             apply = E.SubElement(context_loop, f"{{{XSL}}}apply-templates", select=select, mode="xml2tex")
             for key, value in parameters.items():
