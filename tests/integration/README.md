@@ -7,8 +7,9 @@ are local rendering tests; do not run the image or TeX jobs on hosted CI.
 
 Mount the **current checkout** over `/opt/transpect/a9s/common` in an existing
 check image. An image's ID identifies the toolchain, not the overlaid source.
-Use a new empty output directory for each run. For example, with absolute paths
-in `source_root`, `evidence`, and `heavy_lock`, and a local image ID in `image`:
+Choose an output path that does not yet exist; the runner creates it. For example,
+with absolute paths in `source_root`, `evidence`, and `heavy_lock`, and a local
+image ID in `image`, ensure `$evidence/proof` does not exist before running:
 
 ```sh
 mkdir -p "$evidence"
