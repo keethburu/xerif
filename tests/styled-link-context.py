@@ -72,14 +72,15 @@ def generate(links, rules, depth=1, siblings=1):
     return hub
 
 
-def common(text):
+def common(text, baseline):
+    newline = r'\newline' if baseline else r'\ifhmode\newline\fi'
     # Literal expectations follow the public fixture and existing mapping contract.
     for token in [r'\textbf{Bold}', r'\textit{Italic}', r'\sout{Strike}',
                   r'\textbf{Before\textit{Nested}After}',
                   r'\href{https://example.org/a\_b?x=1&y=2\%20z\#dest}{',
                   r'\href{https://example.org/plain}{PlainText}',
                   'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN↩OPQRSTUVWXYZ0123456789',
-                  'a\\_b\\%↩\\#↩\\&\\({\\sim}\\)\\{x\\}\\newline\nNext/↩abcdef?↩xyz=↩123',
+                  'a\\_b\\%↩\\#↩\\&\\({\\sim}\\)\\{x\\}' + newline + '\nNext/↩abcdef?↩xyz=↩123',
                   r'Top\index[idx]{RangeTerm|)}',
                   r'\textbf{First/↩abc}|\textit{Second?↩xyz}\textbf{Third\textit{Deep}}',
                   r'\textit{Ordinary/abc?xyz=123}',
@@ -131,7 +132,7 @@ def main():
     run(['bash', '/opt/transpect/calabash/calabash.sh', '-i', 'source=' + str(S / 'styled-link-context.xml'), '-i', 'params=/scout/pipeline/params.xml', '-o', 'result=/scout/pipeline/raw.tex', '/opt/transpect/config/render.xpl', 'debug-dir=file:///scout/pipeline/debug'], 'pipeline', timeout=55, env=env)
     sheet = R / 'pipeline/debug/xml2tex/08.config.xsl'
     text = (R / 'pipeline/raw.tex').read_text()
-    common(text)
+    common(text, args.baseline)
     context(text, args.baseline)
     run(['java', '-m', 'jdk.compiler/com.sun.tools.javac.Main', '-d', str(R), '-cp', CP, str(S / 'StyledLinkBench.java')], 'compile-driver')
     # Direct properties with no CSS rules are an independent materialized-shape
@@ -148,7 +149,7 @@ def main():
     source = R / 'materialized.xml'
     material.write(str(source))
     text, _, _ = bench(source, sheet, 'materialized')
-    common(text)
+    common(text, args.baseline)
     context(text, args.baseline)
     if not args.baseline:
         for note in material.findall('.//{' + D + '}footnote'):

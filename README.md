@@ -66,6 +66,11 @@ xerif handles complex publishing requirements out of the box:
 Styled external-link text preserves ancestor styling, inherited language and
 index range references while retaining link escaping and line breaks.
 
+In ordinary body content, a Hub `br` immediately after a block figure is ignored
+when the figure has already ended the paragraph. Inline line breaks still apply,
+including after text following a figure. See the
+[local rendering regression](tests/integration/README.md) for verification.
+
 For automatic note references and diagnostics requiring publication review, see
 the [supported reference semantics](tests/README.md#supported-reference-semantics).
 
