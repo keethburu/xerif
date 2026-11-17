@@ -963,11 +963,19 @@
     <xsl:apply-templates select="dbk:abstract" mode="#current"/>
   </template>
 
+  <xsl:function name="xml2tex:heading-language-start" as="xs:string?">
+    <xsl:param name="lang" as="xs:string?"/>
+    <xsl:variable name="babel-lang" select="if ($lang) then xml2tex:lang-to-babel-lang($lang)[normalize-space()] else ()"/>
+    <xsl:sequence select="if ($babel-lang) then concat('\protect\foreignlanguage{', $babel-lang, '}{') else ()"/>
+  </xsl:function>
+
   <template context="*[not(self::dbk:book
                           |self::dbk:hub)]/dbk:info/dbk:title">
     <xsl:apply-templates select="dbk:phrase[@role eq 'hub:identifier']" mode="#current"/>
     <rule name="tpTitle" type="cmd" break-before="1">
-      <param select="node()[not(@role eq 'hub:identifier')]"/>
+      <xsl:variable name="lang-start" select="xml2tex:heading-language-start(@xml:lang)"/>
+      <xsl:variable name="lang-end" select="'}'[exists($lang-start)]"/>
+      <param select="$lang-start, node()[not(@role eq 'hub:identifier')], $lang-end"/>
     </rule>
     <xsl:call-template name="create-bookmark-content"/>
   </template>
@@ -1227,7 +1235,9 @@
       </xsl:when>
       <xsl:when test="dbk:title[descendant::*[self::dbk:footnote | self::dbk:br | self::dbk:indexterm | self::dbk:phrase[@css:color]]]">
         <rule name="tpRunTitle" type="cmd" break-before="1">
-          <param select="dbk:title/node()[not(self::dbk:phrase[@role = ('identifier', 'hub:identifier')])]">
+          <xsl:variable name="lang-start" select="xml2tex:heading-language-start(dbk:title/@xml:lang)"/>
+          <xsl:variable name="lang-end" select="'}'[exists($lang-start)]"/>
+          <param select="$lang-start, dbk:title/node()[not(self::dbk:phrase[@role = ('identifier', 'hub:identifier')])], $lang-end">
             <with-param name="remove-footnote" select="true()" as="xs:boolean?" tunnel="yes"/>
             <with-param name="remove-newline" select="true()" as="xs:boolean?" tunnel="yes"/>
             <with-param name="remove-indexterm" select="true()" as="xs:boolean?" tunnel="yes"/>
@@ -1250,7 +1260,9 @@
     </xsl:if>
     <xsl:if test="dbk:subtitle">
       <rule name="tpRunSubtitle" type="cmd" break-before="1">
-        <param select="dbk:subtitle/node()">
+        <xsl:variable name="lang-start" select="xml2tex:heading-language-start(dbk:subtitle/@xml:lang)"/>
+        <xsl:variable name="lang-end" select="'}'[exists($lang-start)]"/>
+        <param select="$lang-start, dbk:subtitle/node(), $lang-end">
           <with-param name="remove-footnote" select="true()" as="xs:boolean?" tunnel="yes"/>
           <with-param name="remove-newline" select="true()" as="xs:boolean?" tunnel="yes"/>
           <with-param name="remove-textcolor" select="$remove-textcolor-for-runningtitles" as="xs:boolean?" tunnel="yes"/>
@@ -1284,7 +1296,9 @@
       </xsl:when>
       <xsl:when test="dbk:title[descendant::*[self::dbk:footnote | self::dbk:br | self::dbk:indexterm]]">
         <rule name="tpTocTitle" type="cmd" break-before="1">
-          <param select="dbk:title/node()[not(@role = ('identifier', 'hub:identifier'))]">
+          <xsl:variable name="lang-start" select="xml2tex:heading-language-start(dbk:title/@xml:lang)"/>
+          <xsl:variable name="lang-end" select="'}'[exists($lang-start)]"/>
+          <param select="$lang-start, dbk:title/node()[not(@role = ('identifier', 'hub:identifier'))], $lang-end">
             <with-param name="remove-footnote" select="true()" as="xs:boolean?" tunnel="yes"/>
             <with-param name="remove-newline" select="true()" as="xs:boolean?" tunnel="yes"/>
             <with-param name="remove-indexterm" select="true()" as="xs:boolean?" tunnel="yes"/>
@@ -1325,7 +1339,9 @@
       </xsl:when>
       <xsl:otherwise>
         <rule name="tpTocTitle" type="cmd" break-after="0" break-before="1">
-          <param select="dbk:title/node()[not(self::dbk:phrase[@role = ('identifier', 'hub:identifier')])]">
+          <xsl:variable name="lang-start" select="xml2tex:heading-language-start(dbk:title/@xml:lang)"/>
+          <xsl:variable name="lang-end" select="'}'[exists($lang-start)]"/>
+          <param select="$lang-start, dbk:title/node()[not(self::dbk:phrase[@role = ('identifier', 'hub:identifier')])], $lang-end">
             <with-param name="suppress-foreign-lang" select="true()" as="xs:boolean" tunnel="yes"/>
             <with-param name="toc-override" select="true()" as="xs:boolean" tunnel="yes"/>
             <with-param name="remove-textcolor" select="$remove-textcolor-for-runningtitles" as="xs:boolean?" tunnel="yes"/>
@@ -1342,7 +1358,9 @@
         </xsl:if>
         <xsl:if test="dbk:subtitle">
           <rule name="tpTocSubtitle" type="cmd" break-after="0" break-before="1">
-            <param select="dbk:subtitle/node()">
+            <xsl:variable name="lang-start" select="xml2tex:heading-language-start(dbk:subtitle/@xml:lang)"/>
+            <xsl:variable name="lang-end" select="'}'[exists($lang-start)]"/>
+            <param select="$lang-start, dbk:subtitle/node(), $lang-end">
               <with-param name="suppress-foreign-lang" select="true()" as="xs:boolean" tunnel="yes"/>
               <with-param name="toc-override" select="true()" as="xs:boolean" tunnel="yes"/>
               <with-param name="remove-textcolor" select="$remove-textcolor-for-runningtitles" as="xs:boolean?" tunnel="yes"/>
@@ -1562,7 +1580,9 @@
   
   <template context="dbk:info/dbk:subtitle">
     <rule name="tpSubtitle" type="cmd" break-before="1" break-after="1">
-      <param/>
+      <xsl:variable name="lang-start" select="xml2tex:heading-language-start(@xml:lang)"/>
+      <xsl:variable name="lang-end" select="'}'[exists($lang-start)]"/>
+      <param select="$lang-start, node(), $lang-end"/>
     </rule>
   </template>
   

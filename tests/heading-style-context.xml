@@ -23,4 +23,8 @@
     <title><phrase css:color="#FF0000">Outer<phrase css:color="#FF0000" role="Strong"><footnote><para>OnlyNote</para></footnote></phrase></phrase></title>
     <subtitle><phrase css:color="#FF0000">Outer<phrase css:color="#FF0000" role="Strong"><footnote><para>OnlyNote</para></footnote></phrase></phrase></subtitle>
   </info></chapter>
+  <chapter><info>
+    <title xml:lang="en">Language<br/>title<footnote><para>Title note</para></footnote></title>
+    <subtitle xml:lang="lv">Language subtitle<footnote><para>Subtitle note</para></footnote></subtitle>
+  </info></chapter>
 </hub>

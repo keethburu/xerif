@@ -15,7 +15,7 @@ It makes no network requests. The optional `--config /absolute/path/to/latex.con
 supports a before-fix negative control.
 
 The dedicated `scripello/heading-context` branch and its pull requests run these
-22 cases in the five-minute **Heading context regression** CI job. It pins Python,
+24 cases in the five-minute **Heading context regression** CI job. It pins Python,
 the two Python wheels, action revisions, and both downloaded mapping inputs;
 wheel and mapping SHA-256 checks reject changed dependencies. The installed
 baseline is also required to fail the independent heading output assertions,
@@ -44,6 +44,11 @@ harness; this does not execute the complete xml2tex generator. Color-name
 helpers are fixed to the fixture's red input. An instrumented link checks
 ancestor language, chapter/title IDs, and a current-tree ID lookup outside the
 heading.
+
+The running-head cases require the English title to retain its language wrapper
+after filtering and the unmapped Latvian subtitle to render in the surrounding
+language. The harness substitutes the pinned converter's lookup results for
+English and Latvian.
 
 Hand-written expected fragments cover body output with color retained or
 removed, TOC, running heads with color retained or removed, bookmark filtering,

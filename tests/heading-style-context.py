@@ -81,6 +81,11 @@ def stylesheet(config, inherited):
       </xsl:template>
       <xsl:function name="tr:hex-rgb-color-to-ints"><xsl:param name="color"/><xsl:sequence select="255, 0, 0"/></xsl:function>
       <xsl:function name="tr:color-hex-rgb-to-keyword"><xsl:param name="color"/><xsl:sequence select="'red'"/></xsl:function>
+      <!-- The pinned converter maps English and returns a blank name for Latvian. -->
+      <xsl:function name="xml2tex:lang-to-babel-lang" as="xs:string?">
+        <xsl:param name="lang" as="xs:string?"/>
+        <xsl:sequence select="if ($lang = 'en') then 'english' else ''"/>
+      </xsl:function>
     </xsl:stylesheet>''')
     for node in inherited.xpath('xsl:key[@name="style"] | xsl:variable[@name="text-style-elements"]', namespaces=NS):
         result.append(copy.deepcopy(node))
@@ -98,8 +103,14 @@ def stylesheet(config, inherited):
         for child in node:
             template.append(copy.deepcopy(child))
         result.append(template)
-    # Raw high-priority handlers and their copy helpers are used unchanged.
-    for node in config.xpath('xsl:template[contains(@match,"@css:color")] | xsl:template[@mode="xml2tex:heading-without-color"] | xsl:function[@name="xml2tex:heading-node-in-copy"] | xsl:variable[@name="xml2tex:headings-without-color"]', namespaces=NS):
+    # Use the mapping handlers and their helpers unchanged.
+    for node in config.xpath(
+        'xsl:template[contains(@match,"@css:color")]'
+        ' | xsl:template[@mode="xml2tex:heading-without-color"]'
+        ' | xsl:function[@name="xml2tex:heading-node-in-copy" or @name="xml2tex:heading-language-start"]'
+        ' | xsl:variable[@name="xml2tex:headings-without-color"]',
+        namespaces=NS,
+    ):
         result.append(copy.deepcopy(node))
     for context in ("dbk:br", "dbk:indexterm", "dbk:title//dbk:footnote\n                    |dbk:subtitle//dbk:footnote\n                    |dbk:author//dbk:footnote"):
         node = config.xpath('c:template[normalize-space(@context)=$context]', namespaces=NS, context=" ".join(context.split()))
@@ -133,6 +144,8 @@ def main():
         "explicit-toc": r"\textit{\textcolor{red}{ExplicitTOC}}",
         "explicit-running": r"\textbf{\textcolor{red}{ExplicitRun}}",
         "nested-role-color": r"\textbf{Outer\textit{RoleOnly}}",
+        "running-mapped-lang": r"\protect\foreignlanguage{english}{Language title}",
+        "running-unmapped-lang": "Language subtitle",
     }
     colored = (r"\textbf{\textcolor{red}{Bold}}|\textit{\textcolor{red}{Italic}}|"
                r"\textcolor{red}{\uuline{\sout{Decorated}}}|\textnormal{\textcolor{red}{Normal}}|"
@@ -167,12 +180,23 @@ def main():
             expected[name] = output if destination != "body" else r"\textcolor{red}{" + output + "}"
             cases.append((name, f"/dbk:hub/dbk:chapter[4]/dbk:info/dbk:{heading}/node()", parameters))
     # Exercise actual destination selectors and tunnel settings from xerif.
-    for name, template, branch in (("toc", "customer-toctitles", "otherwise"), ("running", "col-titles", "when[2]"), ("explicit-toc", "customer-toctitles", "when[1]"), ("explicit-running", "col-titles", "when[1]")):
-        param = config.xpath(f'c:template[@name="{template}"]/xsl:choose/xsl:{branch}/c:rule[@name="' + ("tpTocTitle" if "toc" in name else "tpRunTitle") + '"]/c:param', namespaces=NS)[0]
+    destination_variables = {}
+    for name, template, branch, rule in (
+        ("toc", "customer-toctitles", "xsl:choose/xsl:otherwise", "tpTocTitle"),
+        ("running", "col-titles", "xsl:choose/xsl:when[2]", "tpRunTitle"),
+        ("explicit-toc", "customer-toctitles", "xsl:choose/xsl:when[1]", "tpTocTitle"),
+        ("explicit-running", "col-titles", "xsl:choose/xsl:when[1]", "tpRunTitle"),
+        ("running-mapped-lang", "col-titles", "xsl:choose/xsl:when[2]", "tpRunTitle"),
+        ("running-unmapped-lang", "col-titles", "xsl:if/xsl:if", "tpRunSubtitle"),
+    ):
+        param = config.xpath(f'c:template[@name="{template}"]/{branch}/c:rule[@name="{rule}"]/c:param', namespaces=NS)[0]
+        destination_variables[name] = param.xpath(
+            'ancestor::c:template/xsl:variable | preceding-sibling::xsl:variable', namespaces=NS)
         cases.append((name, param.get("select"), {p.get("name"): p.get("select") for p in param}))
         if name == "running":
             parameters = dict(cases[-1][2], **{"remove-textcolor": "false()"})
             cases.append(("running-colored", param.get("select"), parameters))
+            destination_variables["running-colored"] = destination_variables[name]
     failures = []
     with PySaxonProcessor(license=False) as processor, tempfile.TemporaryDirectory() as tmp:
         for name, select, parameters in cases:
@@ -182,12 +206,11 @@ def main():
             E.SubElement(copy_probe, f"{{{XSL}}}message").text = "document-copy"
             E.SubElement(copy_probe, f"{{{XSL}}}next-match")
             driver = E.SubElement(sheet, f"{{{XSL}}}template", match="/")
-            context_node = "/dbk:hub/dbk:chapter[2]/dbk:info" if name.startswith("explicit-") else "/dbk:hub/dbk:chapter[1]/dbk:info"
-            context_loop = E.SubElement(driver, f"{{{XSL}}}for-each", select=context_node)
-            if name.startswith("explicit-"):
-                template_name = "customer-toctitles" if name == "explicit-toc" else "col-titles"
-                variable_name = "toctitle-para" if name == "explicit-toc" else "runtitle-para"
-                variable = config.xpath('c:template[@name=$template]/xsl:variable[@name=$variable]', namespaces=NS, template=template_name, variable=variable_name)[0]
+            chapter = {"running-mapped-lang": 5, "running-unmapped-lang": 5,
+                       "explicit-toc": 2, "explicit-running": 2}.get(name, 1)
+            context_loop = E.SubElement(driver, f"{{{XSL}}}for-each",
+                                       select=f"/dbk:hub/dbk:chapter[{chapter}]/dbk:info")
+            for variable in destination_variables.get(name, ()):
                 context_loop.append(copy.deepcopy(variable))
             apply = E.SubElement(context_loop, f"{{{XSL}}}apply-templates", select=select, mode="xml2tex")
             for key, value in parameters.items():
