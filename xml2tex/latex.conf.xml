@@ -1289,7 +1289,8 @@
   <template name="toc-titles">
      <!-- customer-toctitles handles authored abbreviations and preserves linebreaks.
           The non-customer fallback removes footnotes, linebreaks and index terms
-          when the heading contains any of them; otherwise it emits nothing. -->
+          when the heading contains any of them; otherwise it emits nothing.
+          Keep inline language overrides inside an explicit heading language scope. -->
     <xsl:choose>
       <xsl:when test="$create-customer-toctitles">
         <xsl:call-template name="customer-toctitles"/>
@@ -1302,7 +1303,7 @@
             <with-param name="remove-footnote" select="true()" as="xs:boolean?" tunnel="yes"/>
             <with-param name="remove-newline" select="true()" as="xs:boolean?" tunnel="yes"/>
             <with-param name="remove-indexterm" select="true()" as="xs:boolean?" tunnel="yes"/>
-            <with-param name="suppress-foreign-lang" select="true()" as="xs:boolean" tunnel="yes"/>
+            <with-param name="suppress-foreign-lang" select="empty($lang-start)" as="xs:boolean" tunnel="yes"/>
             <with-param name="remove-textcolor" select="$remove-textcolor-for-runningtitles" as="xs:boolean?" tunnel="yes"/>
           </param>
         </rule>
@@ -1342,7 +1343,7 @@
           <xsl:variable name="lang-start" select="xml2tex:heading-language-start(dbk:title/@xml:lang)"/>
           <xsl:variable name="lang-end" select="'}'[exists($lang-start)]"/>
           <param select="$lang-start, dbk:title/node()[not(self::dbk:phrase[@role = ('identifier', 'hub:identifier')])], $lang-end">
-            <with-param name="suppress-foreign-lang" select="true()" as="xs:boolean" tunnel="yes"/>
+            <with-param name="suppress-foreign-lang" select="empty($lang-start)" as="xs:boolean" tunnel="yes"/>
             <with-param name="toc-override" select="true()" as="xs:boolean" tunnel="yes"/>
             <with-param name="remove-textcolor" select="$remove-textcolor-for-runningtitles" as="xs:boolean?" tunnel="yes"/>
           </param>
@@ -1361,7 +1362,7 @@
             <xsl:variable name="lang-start" select="xml2tex:heading-language-start(dbk:subtitle/@xml:lang)"/>
             <xsl:variable name="lang-end" select="'}'[exists($lang-start)]"/>
             <param select="$lang-start, dbk:subtitle/node(), $lang-end">
-              <with-param name="suppress-foreign-lang" select="true()" as="xs:boolean" tunnel="yes"/>
+              <with-param name="suppress-foreign-lang" select="empty($lang-start)" as="xs:boolean" tunnel="yes"/>
               <with-param name="toc-override" select="true()" as="xs:boolean" tunnel="yes"/>
               <with-param name="remove-textcolor" select="$remove-textcolor-for-runningtitles" as="xs:boolean?" tunnel="yes"/>
             </param>
