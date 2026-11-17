@@ -1,4 +1,4 @@
-# Colored heading style context regression
+# Heading mapping regressions
 
 `heading-style-context.xml` is original synthetic CC0-1.0 input. Run the focused
 XSLT regression with Python, `lxml==5.2.1`, and `saxonche==12.9.0`:
@@ -14,13 +14,12 @@ The runner verifies its SHA-256
 It makes no network requests. The optional `--config /absolute/path/to/latex.conf.xml`
 supports a before-fix negative control.
 
-The dedicated `scripello/heading-context` branch and its pull requests run these
-24 cases in the five-minute **Heading context regression** CI job. It pins Python,
+Pushes to `scripello/heading-context` and pull requests targeting it run these
+cases in the five-minute **Heading context regression** CI job. It pins Python,
 the two Python wheels, action revisions, and both downloaded mapping inputs;
 wheel and mapping SHA-256 checks reject changed dependencies. The installed
 baseline is also required to fail the independent heading output assertions,
-so an import or download error cannot satisfy the negative control. This job is
-limited to the heading backport and does not render PDFs.
+so an import or download error cannot satisfy the negative control.
 
 The same job runs `heading-config-schema.py` through lxml's real Relax NG
 validator against the complete mapping. The workflow pins the installed XML2TeX
@@ -45,10 +44,10 @@ helpers are fixed to the fixture's red input. An instrumented link checks
 ancestor language, chapter/title IDs, and a current-tree ID lookup outside the
 heading.
 
-The running-head cases require the English title to retain its language wrapper
-after filtering and the unmapped Latvian subtitle to render in the surrounding
-language. The harness substitutes the pinned converter's lookup results for
-English and Latvian.
+The running-head language cases stub the pinned converter's lookup with its
+results for a mapped English title and an unmapped Latvian subtitle. See
+[Multilingual publishing](../README.md#multilingual-publishing) for the heading
+language behavior.
 
 Hand-written expected fragments cover body output with color retained or
 removed, TOC, running heads with color retained or removed, bookmark filtering,
@@ -60,8 +59,9 @@ The nested case's independent expected body output is `Outer\protect\footnote{On
 They require
 role-derived bold, italic, underline style and strike-through to survive color
 removal, while role-derived color stays suppressed, including on descendants
-without an inline color attribute. Break expectations preserve
-the existing distinction between TOC fallback and running/bookmark output.
+without an inline color attribute. The break assertions expect a line break in
+the TOC entry derived from the full title and a space in the corresponding
+running head and bookmark.
 A copy-mode execution probe also requires at most one document copy per
 transformation, rejecting repeated full-book copies for sibling or nested phrases.
 The pre-fix configuration fails these output assertions.

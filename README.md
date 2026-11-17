@@ -78,6 +78,12 @@ Thanks to Unicode, OpenType fonts, and advanced hyphenation support,
 xerif supports many writing systems, including Latin-based languages,
 Arabic, Hebrew, Chinese, Japanese, and Korean.
 
+In Hub XML, use `xml:lang` on a heading's `title` or `subtitle` to select its
+language in the TeX output. xerif uses the converter's Babel mapping for the
+body heading and for running heads and table-of-contents entries generated from
+that title or subtitle. If the converter has no mapping for the language code,
+the heading uses the surrounding language.
+
 ### Multiple input and output formats
 
 Supported input formats include:
