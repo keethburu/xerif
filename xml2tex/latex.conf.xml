@@ -3282,7 +3282,7 @@
 
   <xsl:function name="xml2tex:replace-recursive-linktext" as="node()*">
     <xsl:param name="nodes" as="node()*"/>
-    <xsl:param name="toc-heading-language" as="attribute(xml:lang)?"/>
+    <xsl:param name="active-toc-language" as="xs:string?"/>
      <xsl:for-each select="$nodes">
        <xsl:choose>
          <xsl:when test=".[self::text()]"><xsl:sequence select="xml2tex:add-tactical-breaks-by-string-length(xml2tex:add-tactical-break-chars-in-linktext(.))"/></xsl:when>
@@ -3292,7 +3292,7 @@
              <xsl:copy-of select="root(.)//css:rules"/>
              <xsl:apply-templates select="." mode="copy">
                <xsl:with-param name="replace-linktext" as="xs:boolean" select="true()" tunnel="yes"/>
-               <xsl:with-param name="toc-heading-language" select="$toc-heading-language" tunnel="yes"/>
+               <xsl:with-param name="active-toc-language" select="$active-toc-language" tunnel="yes"/>
              </xsl:apply-templates>
            </xsl:variable>
            <xsl:sequence select="$replacement/node() except $replacement/css:rules"/>
@@ -3322,8 +3322,8 @@
                       |dbk:link/*/@xml:lang" mode="copy"/>
 
   <xsl:template match="dbk:link/dbk:phrase/@xml:lang" mode="copy" priority="1">
-    <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
-    <xsl:if test="$toc-heading-language and xml2tex:lang-to-babel-lang(.)[normalize-space()]">
+    <xsl:param name="active-toc-language" as="xs:string?" tunnel="yes"/>
+    <xsl:if test="xml2tex:lang-to-babel-lang(.)[normalize-space()] ne $active-toc-language">
       <xsl:copy/>
     </xsl:if>
   </xsl:template>
@@ -3382,12 +3382,17 @@
   <template name="external-link-label">
     <xsl:param name="url-runs" as="xs:boolean" select="false()"/>
     <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
+    <xsl:param name="toc-phrase-language" as="xs:string?" tunnel="yes"/>
+    <xsl:variable name="active-toc-language"
+                  select="if ($toc-heading-language)
+                          then ($toc-phrase-language, xml2tex:lang-to-babel-lang($toc-heading-language))[1]
+                          else ()"/>
     <xsl:variable name="destination" select="if ($url-runs) then @xlink:href else (@url, @xlink:href)[1]"/>
     <rule name="href" type="cmd">
       <param select="replace(xml2tex:optionally-encode-uri($destination), '(%|#|_|\\)', '\\$1' )"/>
       <param>
         <xsl:apply-templates select="if ($url-runs) then node()
-                                     else xml2tex:replace-recursive-linktext(node(), $toc-heading-language)" mode="xml2tex">
+                                     else xml2tex:replace-recursive-linktext(node(), $active-toc-language)" mode="xml2tex">
           <xsl:with-param name="url-runs" select="$url-runs" tunnel="yes"/>
         </xsl:apply-templates>
       </param>
