@@ -76,7 +76,6 @@
             <html:head>
               <html:title>Proof</html:title>
               <html:meta name="source-dir-uri" content="file:///private/manuscript/"/>
-              <html:meta name="description" content="Published proof"/>
             </html:head>
             <html:body>
               <html:a href="chapters/next.xhtml#start">Next chapter</html:a>

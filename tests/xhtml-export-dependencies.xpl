@@ -21,6 +21,11 @@
       <p:with-option name="attribute-value"
         select="replace(/html:html/@xml:base, '[^/]+/$', concat('epub/', $different-basename, '.html'))"/>
     </p:add-attribute>
+    <p:insert match="/html:html/html:head" position="last-child">
+      <p:input port="insertion">
+        <p:inline><html:meta name="description" content="Published proof"/></p:inline>
+      </p:input>
+    </p:insert>
   </p:declare-step>
 
   <p:declare-step type="tei2html:tei2html">

@@ -6,6 +6,7 @@
   xmlns:docx2hub="http://transpect.io/docx2hub"
   xmlns:xml2tex="http://transpect.io/xml2tex"
   xmlns:hub2htm="http://transpect.io/hub2htm"
+  xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns:tx="http://transpect.io/xerif"
   version="1.0"
   name="htmlreport" 
@@ -31,8 +32,26 @@
   <p:option name="debug" select="'yes'"/>
   <p:option name="debug-dir-uri" select="'debug'"/>
   <p:option name="status-dir-uri" select="'status'"/>
+  <p:option name="source-dir-uri" select="''"/>
   
   <p:import href="http://transpect.io/htmlreports/xpl/patch-svrl.xpl"/>
+  <p:import href="export-xhtml.xpl"/>
+
+  <p:add-attribute name="report-source-directory" match="/html:meta" attribute-name="content">
+    <p:input port="source">
+      <p:inline><html:meta name="source-dir-uri"/></p:inline>
+    </p:input>
+    <p:with-option name="attribute-value" select="$source-dir-uri"/>
+  </p:add-attribute>
+
+  <p:insert match="/html:html/html:head[not(html:meta[@name = 'source-dir-uri'])]" position="last-child">
+    <p:input port="source">
+      <p:pipe step="htmlreport" port="source"/>
+    </p:input>
+    <p:input port="insertion" select="/html:meta[normalize-space(@content)]">
+      <p:pipe step="report-source-directory" port="result"/>
+    </p:input>
+  </p:insert>
   
   <tr:patch-svrl name="report">
     <p:input port="reports">
@@ -46,5 +65,7 @@
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
   </tr:patch-svrl>
+
+  <tx:export-xhtml/>
  
 </p:declare-step>

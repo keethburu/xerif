@@ -192,3 +192,14 @@ CATALOGS="$PWD/tests/xhtml-export-catalog.xml" \
 The catalog supplies stand-ins for external conversion and EPUB packaging. The
 fixture runs Xerif's HTML and TEI pipelines, serializes their public `html`
 outputs, and follows chapter and cover references from the publication directory.
+
+Run the report fixture with the same launcher and its default runtime catalogs:
+
+```sh
+/path/to/transpect/calabash/calabash.sh tests/xhtml-report.xpl \
+  scratch-dir-uri=file:///absolute/path/to/scratch
+```
+
+The fixture checks that the renderer attaches an absolute SVRL diagnostic to a
+paragraph with a relative source path and that the serialized report omits the
+private directory.

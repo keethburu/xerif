@@ -9,6 +9,8 @@
   xmlns:hub2tei="http://transpect.io/hub2tei"
   xmlns:xml2tex="http://transpect.io/xml2tex"
   xmlns:hub2htm="http://transpect.io/hub2htm"
+  xmlns:dbk="http://docbook.org/ns/docbook"
+  xmlns:tei="http://www.tei-c.org/ns/1.0"
   xmlns:tx="http://transpect.io/xerif"
   version="1.0"
   name="main" 
@@ -465,6 +467,12 @@
       <p:pipe port="report" step="evolve-hub-dyn"/>
       <p:pipe port="reports" step="validate"/>
     </p:input>
+    <p:with-option name="source-dir-uri"
+      select="string((/*/dbk:info/dbk:keywordset[@role = 'hub']/dbk:keyword[@role = 'source-dir-uri'],
+                      /*/tei:teiHeader//tei:keywords/tei:term[@key = 'source-dir-uri'],
+                      /*/@source-dir-uri)[normalize-space()][1])">
+      <p:pipe port="result" step="copy-images-and-patch-filerefs"/>
+    </p:with-option>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
