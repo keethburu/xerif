@@ -7,5 +7,5 @@
   <p:input port="source"/>
   <p:output port="result"/>
 
-  <p:delete match="/html:html/@xml:base"/>
+  <p:delete match="/html:html/@xml:base | @source-dir-uri | html:meta[@name = 'source-dir-uri']"/>
 </p:declare-step>

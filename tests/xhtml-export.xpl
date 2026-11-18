@@ -61,8 +61,12 @@
     <p:add-attribute match="/html:html" attribute-name="xml:base">
       <p:input port="source">
         <p:inline>
-          <html:html xml:lang="en" dir="ltr">
-            <html:head><html:title>Proof</html:title></html:head>
+          <html:html xml:lang="en" dir="ltr" source-dir-uri="file:///private/manuscript/">
+            <html:head>
+              <html:title>Proof</html:title>
+              <html:meta name="source-dir-uri" content="file:///private/manuscript/"/>
+              <html:meta name="description" content="Published proof"/>
+            </html:head>
             <html:body>
               <html:a href="chapters/next.xhtml#start">Next chapter</html:a>
               <html:img src="images/cover.svg" alt="Cover"/>
@@ -122,8 +126,12 @@
               <xsl:variable name="root" select="html:html"/>
               <xsl:variable name="link" select="$root/html:body/html:a"/>
               <xsl:variable name="image" select="$root/html:body/html:img"/>
+              <xsl:if test="//@source-dir-uri or //html:meta[@name = 'source-dir-uri']">
+                <xsl:message terminate="yes">Serialized XHTML must omit source-dir-uri.</xsl:message>
+              </xsl:if>
               <xsl:if test="$root/@xml:base or not($root/@xml:lang = 'en' and $root/@dir = 'ltr'
                             and $root/html:head/html:title = 'Proof'
+                            and $root/html:head/html:meta[@name = 'description']/@content = 'Published proof'
                             and $link/@href = 'chapters/next.xhtml#start' and $image/@src = 'images/cover.svg')">
                 <xsl:message terminate="yes">Serialized XHTML must preserve the title, language, direction, and publication-relative references and omit the source base.</xsl:message>
               </xsl:if>

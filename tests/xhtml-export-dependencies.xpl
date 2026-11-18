@@ -6,6 +6,7 @@
   xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns:tei2html="http://transpect.io/tei2html"
   xmlns:tr="http://transpect.io"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   version="1.0">
 
   <p:declare-step type="html:templates">
@@ -53,9 +54,22 @@
     <p:option name="debug-dir-uri"/>
     <p:option name="status-dir-uri"/>
     <p:option name="terminate-on-error"/>
-    <p:identity>
-      <p:input port="source"><p:inline><c:result>proof.epub</c:result></p:inline></p:input>
-    </p:identity>
+    <p:xslt>
+      <p:input port="stylesheet">
+        <p:inline>
+          <xsl:stylesheet version="2.0">
+            <xsl:template match="/">
+              <xsl:if test="not(html:html/@source-dir-uri = 'file:///private/manuscript/'
+                            and html:html/html:head/html:meta[@name = 'source-dir-uri']/@content = 'file:///private/manuscript/')">
+                <xsl:message terminate="yes">EPUB conversion must receive source-dir-uri.</xsl:message>
+              </xsl:if>
+              <c:result>proof.epub</c:result>
+            </xsl:template>
+          </xsl:stylesheet>
+        </p:inline>
+      </p:input>
+      <p:input port="parameters"><p:empty/></p:input>
+    </p:xslt>
   </p:declare-step>
 
   <p:declare-step type="tr:store-debug">
