@@ -17,7 +17,10 @@
     <p:option name="debug"/>
     <p:option name="debug-dir-uri"/>
     <p:option name="different-basename"/>
-    <p:identity/>
+    <p:add-attribute match="/html:html" attribute-name="xml:base">
+      <p:with-option name="attribute-value"
+        select="replace(/html:html/@xml:base, '[^/]+/$', concat('epub/', $different-basename, '.html'))"/>
+    </p:add-attribute>
   </p:declare-step>
 
   <p:declare-step type="tei2html:tei2html">

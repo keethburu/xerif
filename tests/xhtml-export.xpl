@@ -44,10 +44,10 @@
   <p:for-each name="check-publication">
     <p:iteration-source>
       <p:inline>
-        <c:base converter="html" name="absolute" epub-base="file:///private/manuscript/">file:///private/manuscript/</c:base>
+        <c:base converter="html" name="absolute" epub-base="file:///private/epub/proof.html">file:///private/manuscript/</c:base>
       </p:inline>
       <p:inline>
-        <c:base converter="html" name="relative" epub-base="../manuscript/">../manuscript/</c:base>
+        <c:base converter="html" name="relative" epub-base="../epub/proof.html">../manuscript/</c:base>
       </p:inline>
       <p:inline>
         <c:base converter="tei" name="absolute" epub-base="file:///private/epub-output/proof.epub">file:///private/manuscript/</c:base>
