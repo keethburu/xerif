@@ -44,7 +44,7 @@
     <p:identity/>
   </p:declare-step>
 
-  <p:declare-step type="epub:convert">
+  <p:declare-step type="epub:convert" name="package">
     <p:input port="source" primary="true"/>
     <p:input port="meta"/>
     <p:input port="conf" sequence="true"/>
@@ -58,7 +58,11 @@
       <p:input port="stylesheet">
         <p:inline>
           <xsl:stylesheet version="2.0">
+            <xsl:param name="expected-epub-base"/>
             <xsl:template match="/">
+              <xsl:if test="not(html:html/@xml:base = $expected-epub-base)">
+                <xsl:message terminate="yes">EPUB conversion must receive the expected root xml:base.</xsl:message>
+              </xsl:if>
               <xsl:if test="not(html:html/@source-dir-uri = 'file:///private/manuscript/'
                             and html:html/html:head/html:meta[@name = 'source-dir-uri']/@content = 'file:///private/manuscript/')">
                 <xsl:message terminate="yes">EPUB conversion must receive source-dir-uri.</xsl:message>
@@ -69,6 +73,9 @@
         </p:inline>
       </p:input>
       <p:input port="parameters"><p:empty/></p:input>
+      <p:with-param name="expected-epub-base" select="string(/epub-config/@expected-epub-base)">
+        <p:pipe step="package" port="meta"/>
+      </p:with-param>
     </p:xslt>
   </p:declare-step>
 

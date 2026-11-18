@@ -15,6 +15,7 @@
   <p:import href="../xpl/tei2epub.xpl"/>
   <p:variable name="publication-dir-uri"
     select="if (ends-with($scratch-dir-uri, '/')) then $scratch-dir-uri else concat($scratch-dir-uri, '/')"/>
+  <p:variable name="expected-directory" select="replace($scratch-dir-uri, '/$', '')"/>
 
   <p:store name="chapter" method="xhtml">
     <p:input port="source">
@@ -40,23 +41,33 @@
     </p:input>
   </p:identity>
 
-  <p:identity name="metadata">
-    <p:input port="source">
-      <p:inline><epub-config><cover href="images/cover.svg"/></epub-config></p:inline>
-    </p:input>
-  </p:identity>
-
   <p:for-each name="check-publication">
     <p:iteration-source>
-      <p:inline><c:base converter="html" name="absolute">file:///private/manuscript/</c:base></p:inline>
-      <p:inline><c:base converter="html" name="relative">../manuscript/</c:base></p:inline>
-      <p:inline><c:base converter="tei" name="absolute">file:///private/manuscript/</c:base></p:inline>
-      <p:inline><c:base converter="tei" name="relative">../manuscript/</c:base></p:inline>
+      <p:inline>
+        <c:base converter="html" name="absolute" epub-base="file:///private/manuscript/">file:///private/manuscript/</c:base>
+      </p:inline>
+      <p:inline>
+        <c:base converter="html" name="relative" epub-base="../manuscript/">../manuscript/</c:base>
+      </p:inline>
+      <p:inline>
+        <c:base converter="tei" name="absolute" epub-base="file:///private/epub-output/proof.epub">file:///private/manuscript/</c:base>
+      </p:inline>
+      <p:inline>
+        <c:base converter="tei" name="relative" epub-base="file:///private/epub-output/proof.epub">../manuscript/</c:base>
+      </p:inline>
     </p:iteration-source>
     <p:output port="result"/>
     <p:variable name="source-base" select="string(/c:base)"/>
+    <p:variable name="expected-epub-base" select="string(/c:base/@epub-base)"/>
     <p:variable name="converter" select="string(/c:base/@converter)"/>
     <p:variable name="filename" select="concat($converter, '-', /c:base/@name, '.xhtml')"/>
+
+    <p:add-attribute name="metadata" match="/epub-config" attribute-name="expected-epub-base">
+      <p:input port="source">
+        <p:inline><epub-config><cover href="images/cover.svg"/></epub-config></p:inline>
+      </p:input>
+      <p:with-option name="attribute-value" select="$expected-epub-base"/>
+    </p:add-attribute>
 
     <p:add-attribute match="/html:html" attribute-name="xml:base">
       <p:input port="source">
@@ -96,6 +107,7 @@
         <tx:tei2epub name="convert-tei">
           <p:input port="params"><p:pipe step="paths" port="result"/></p:input>
           <p:input port="meta"><p:pipe step="metadata" port="result"/></p:input>
+          <p:with-option name="out-dir-uri" select="'file:///private/epub-output'"/>
           <p:with-option name="debug" select="'no'"/>
         </tx:tei2epub>
         <p:sink/>
@@ -115,7 +127,15 @@
     </p:wrap-sequence>
 
     <p:load>
-      <p:with-option name="href" select="/c:publication/c:result[1]"/>
+      <p:with-option name="href" select="
+        if (deep-equal(
+              for $uri in /c:publication/c:result return replace($uri, '^file:///', 'file:/'),
+              for $path in ($filename, 'chapters/next.xhtml', 'images/cover.svg')
+              return replace(concat($expected-directory, '/', $path), '^file:///', 'file:/')
+            ))
+        then /c:publication/c:result[1]
+        else error(QName('http://transpect.io/xerif', 'tx:WRONG_PUBLICATION_DIRECTORY'),
+                   'Fixture files must be stored in the requested publication directory.')"/>
     </p:load>
 
     <p:xslt>
