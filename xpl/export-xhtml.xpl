@@ -7,8 +7,5 @@
   <p:input port="source"/>
   <p:output port="result"/>
 
-  <p:delete match="/html:html/@xml:base[
-    matches(normalize-space(.), '^file:', 'i')
-    or (starts-with(normalize-space(.), '/') and starts-with(lower-case(base-uri(..)), 'file:'))
-  ]"/>
+  <p:delete match="/html:html/@xml:base"/>
 </p:declare-step>
