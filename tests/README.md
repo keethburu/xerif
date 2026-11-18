@@ -70,3 +70,24 @@ This is a mapping-level check. It does not certify generated TeX in the complete
 pipeline or PDF output. Full rendering additionally requires the complete
 transpect/CoCoTeX/LuaLaTeX pipeline; XML/XSLT-only results do not establish PDF
 correctness.
+
+## TOC inline language
+
+`toc-inline-language.py` renders the synthetic `toc-inline-language.xml` in
+the pinned Scripello worker. It checks the emitted TeX for literal and distinct
+link labels, styled script runs, and note references. Run it with the current
+mapping mounted read-only. Set `SCRIPPELLO_HEAVY_LOCK` to the shared Scripello
+rendering lock before running the commands.
+
+```sh
+image=sha256:d19587429905c905c0fd8aa5b53d2a542a005ead00b30c14ee406e9de3514bc0
+output=$(mktemp -d "$PWD/.toc-language.XXXXXX")
+chmod a+rx "$output"
+for route in standard customer; do
+  flock -w 60 "$SCRIPPELLO_HEAVY_LOCK" timeout 100 docker run --rm --pull never \
+    --network none --cpus 3 --memory 4g \
+    -v "$PWD/tests:/tests:ro" -v "$output:/output" \
+    -v "$PWD/xml2tex/latex.conf.xml:/opt/transpect/a9s/common/xml2tex/latex.conf.xml:ro" \
+    --entrypoint /opt/venv/bin/python "$image" -B /tests/toc-inline-language.py "/output/$route" "$route"
+done
+```

@@ -3378,13 +3378,19 @@
     <!-- this only works if option 'collect-all-xsl' on xml2tex is set to yes. otherwise templates matching the same elements in different modes will not be considered -->
     <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
     <xsl:param name="toc-phrase-language" as="xs:string?" tunnel="yes"/>
+    <xsl:variable name="destination" select="(@url, @xlink:href)[1]"/>
+    <xsl:variable name="label" select="replace(., '\\([#%_])', '$1')"/>
+    <xsl:variable name="label-heading-language"
+                  select="$toc-heading-language[not($label = ($destination, replace($destination, '^mailto:', '', 'i')))]"/>
     <xsl:variable name="active-toc-language"
-                  select="if ($toc-heading-language)
-                          then ($toc-phrase-language, xml2tex:lang-to-babel-lang($toc-heading-language))[1]
+                  select="if ($label-heading-language)
+                          then ($toc-phrase-language, xml2tex:lang-to-babel-lang($label-heading-language))[1]
                           else ()"/>
     <rule name="href" type="cmd">
-      <param select="replace(xml2tex:optionally-encode-uri((@url, @xlink:href)[1]), '(%|#|_|\\)', '\\$1' )"/>
-      <param select="xml2tex:replace-recursive-linktext(node(), $active-toc-language)"/>
+      <param select="replace(xml2tex:optionally-encode-uri($destination), '(%|#|_|\\)', '\\$1' )"/>
+      <param select="xml2tex:replace-recursive-linktext(node(), $active-toc-language)">
+        <with-param name="toc-heading-language" select="$label-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
+      </param>
     </rule>
   </template>
   
@@ -3522,12 +3528,13 @@
                           else '\textsubscript{'"/>
     <xsl:variable name="font-start" select="(if (@css:font-style eq 'italic') then '\textit{' else (),
                                             if (@css:font-weight eq 'bold') then '\textbf{' else ())"/>
+    <xsl:variable name="script" select="."/>
+    <xsl:variable name="outer-language" select="string(($toc-phrase-language, xml2tex:lang-to-babel-lang($toc-heading-language))[1])"/>
     <xsl:value-of select="string-join($font-start, '')"/>
     <xsl:choose>
       <xsl:when test="exists($font-start) and $toc-heading-language
-                      and descendant::dbk:phrase[@xml:lang][xml2tex:lang-to-babel-lang(@xml:lang)[normalize-space()]]">
-        <xsl:variable name="script" select="."/>
-        <xsl:variable name="outer-language" select="($toc-phrase-language, xml2tex:lang-to-babel-lang($toc-heading-language))[1]"/>
+                      and (some $text in .//text()[normalize-space()]
+                           satisfies xml2tex:toc-text-language($text, $script, $outer-language) ne $outer-language)">
         <xsl:for-each-group select=".//text()" group-adjacent="xml2tex:toc-text-language(., $script, $outer-language)">
           <xsl:variable name="language" select="current-grouping-key()[. ne $outer-language]"/>
           <xsl:call-template name="toc-language-start">
@@ -3539,7 +3546,7 @@
         </xsl:for-each-group>
       </xsl:when>
       <xsl:when test="exists($font-start)">
-        <xsl:value-of select="string-join(xml2tex:utf2tex(.., ., $charmap, (), $texregex), '')"/>
+        <xsl:value-of select="string-join(xml2tex:utf2tex(parent::*, ., $charmap, (), $texregex), '')"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates mode="#current"/>
