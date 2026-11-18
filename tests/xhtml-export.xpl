@@ -1,14 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
+  xmlns:c="http://www.w3.org/ns/xproc-step"
   xmlns:html="http://www.w3.org/1999/xhtml"
+  xmlns:svg="http://www.w3.org/2000/svg"
   xmlns:tx="http://transpect.io/xerif"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   version="1.0">
 
   <p:output port="result" sequence="true">
     <p:pipe step="local-base" port="result"/>
     <p:pipe step="portable-base" port="result"/>
   </p:output>
+  <p:option name="scratch-dir-uri" required="true"/>
   <p:import href="../xpl/export-xhtml.xpl"/>
+
+  <p:store name="chapter" method="xhtml">
+    <p:input port="source">
+      <p:inline>
+        <html:html><html:body><html:h1 id="start">Published chapter</html:h1></html:body></html:html>
+      </p:inline>
+    </p:input>
+    <p:with-option name="href" select="resolve-uri('chapters/next.xhtml', $scratch-dir-uri)"/>
+  </p:store>
+
+  <p:store name="cover">
+    <p:input port="source">
+      <p:inline>
+        <svg:svg width="1" height="1"><svg:title>Published cover</svg:title></svg:svg>
+      </p:inline>
+    </p:input>
+    <p:with-option name="href" select="resolve-uri('images/cover.svg', $scratch-dir-uri)"/>
+  </p:store>
 
   <p:identity>
     <p:input port="source">
@@ -17,7 +39,7 @@
           <html:head><html:title>Proof</html:title></html:head>
           <html:body>
             <html:a href="chapters/next.xhtml#start">Next chapter</html:a>
-            <html:img src="images/cover.png" alt="Cover"/>
+            <html:img src="images/cover.svg" alt="Cover"/>
           </html:body>
         </html:html>
       </p:inline>
@@ -26,19 +48,49 @@
 
   <tx:export-xhtml/>
 
-  <p:compare name="local-base" fail-if-not-equal="true">
-    <p:input port="alternate">
+  <p:store name="proof" method="xhtml">
+    <p:with-option name="href" select="resolve-uri('proof.xhtml', $scratch-dir-uri)"/>
+  </p:store>
+
+  <p:wrap-sequence wrapper="c:publication">
+    <p:input port="source">
+      <p:pipe step="proof" port="result"/>
+      <p:pipe step="chapter" port="result"/>
+      <p:pipe step="cover" port="result"/>
+    </p:input>
+  </p:wrap-sequence>
+
+  <p:load>
+    <p:with-option name="href" select="/c:publication/c:result[1]"/>
+  </p:load>
+
+  <p:xslt name="local-base">
+    <p:input port="stylesheet">
       <p:inline>
-        <html:html xml:lang="en" dir="ltr">
-          <html:head><html:title>Proof</html:title></html:head>
-          <html:body>
-            <html:a href="chapters/next.xhtml#start">Next chapter</html:a>
-            <html:img src="images/cover.png" alt="Cover"/>
-          </html:body>
-        </html:html>
+        <xsl:stylesheet version="2.0">
+          <xsl:template match="/">
+            <xsl:variable name="root" select="html:html"/>
+            <xsl:variable name="link" select="$root/html:body/html:a"/>
+            <xsl:variable name="image" select="$root/html:body/html:img"/>
+            <xsl:if test="$root/@xml:base or not($root/@xml:lang = 'en' and $root/@dir = 'ltr'
+                          and $root/html:head/html:title = 'Proof'
+                          and $link/@href = 'chapters/next.xhtml#start' and $image/@src = 'images/cover.svg')">
+              <xsl:message terminate="yes">Serialized XHTML must preserve the title, language, direction, and publication-relative references and omit the source base.</xsl:message>
+            </xsl:if>
+            <xsl:variable name="target" select="resolve-uri($link/@href, base-uri($link))"/>
+            <xsl:variable name="chapter" select="doc(substring-before($target, '#'))"/>
+            <xsl:variable name="cover" select="doc(resolve-uri($image/@src, base-uri($image)))"/>
+            <xsl:if test="not($chapter//html:h1[@id = substring-after($target, '#')] = 'Published chapter'
+                          and $cover/svg:svg/svg:title = 'Published cover')">
+              <xsl:message terminate="yes">The link fragment and image must resolve to the caller's published targets.</xsl:message>
+            </xsl:if>
+            <c:result>true</c:result>
+          </xsl:template>
+        </xsl:stylesheet>
       </p:inline>
     </p:input>
-  </p:compare>
+    <p:input port="parameters"><p:empty/></p:input>
+  </p:xslt>
 
   <p:identity name="portable">
     <p:input port="source">

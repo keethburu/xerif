@@ -34,7 +34,6 @@
     <p:documentation>
       The EPUB file URI
     </p:documentation>
-    <p:pipe port="result" step="create-epub"/>
   </p:output>
   
   <p:output port="html" primary="false">
@@ -49,9 +48,8 @@
   <p:import href="http://transpect.io/cascade/xpl/dynamic-transformation-pipeline.xpl"/>
   <p:import href="http://transpect.io/epubtools/xpl/epub-convert.xpl"/>
   <p:import href="http://transpect.io/htmltemplates/xpl/htmltemplates.xpl"/>
-  <p:import href="export-xhtml.xpl"/>
   
-  <p:template name="load-epub-config-options-input">
+  <p:template name="load-epub-config-options-input" cx:depends-on="tei2html">
     <p:input port="source">
       <p:empty/>
     </p:input>
@@ -70,11 +68,8 @@
   <p:sink/>
 
   <p:group name="create-epub" cx:depends-on="load-epub-config">
-    <p:output port="result">
-      <p:pipe port="result" step="epub-convert"/>
-    </p:output>
     <p:output port="html">
-      <p:pipe port="result" step="export-xhtml"/>
+      <p:pipe port="result" step="htmltemplates"/>
     </p:output>
     <p:variable name="basename" select="/c:param-set/c:param[@name='basename']/@value">
       <p:pipe port="params" step="tx-bits2epub"/>
@@ -83,7 +78,7 @@
     
     <html:templates name="htmltemplates">
       <p:input port="source">
-        <p:pipe port="source" step="tx-bits2epub"/>
+        <p:pipe port="result" step="tei2html"/>
       </p:input>
       <p:input port="meta">
         <p:pipe port="meta" step="tx-bits2epub"/>
@@ -168,12 +163,6 @@
     </epub:convert>
       
     <p:sink/>
-
-    <tx:export-xhtml name="export-xhtml">
-      <p:input port="source">
-        <p:pipe port="result" step="htmltemplates"/>
-      </p:input>
-    </tx:export-xhtml>
   </p:group>
 
 </p:declare-step>
