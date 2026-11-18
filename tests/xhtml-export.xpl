@@ -12,6 +12,8 @@
   </p:output>
   <p:option name="scratch-dir-uri" required="true"/>
   <p:import href="../xpl/export-xhtml.xpl"/>
+  <p:variable name="publication-dir-uri"
+    select="if (ends-with($scratch-dir-uri, '/')) then $scratch-dir-uri else concat($scratch-dir-uri, '/')"/>
 
   <p:store name="chapter" method="xhtml">
     <p:input port="source">
@@ -19,7 +21,7 @@
         <html:html><html:body><html:h1 id="start">Published chapter</html:h1></html:body></html:html>
       </p:inline>
     </p:input>
-    <p:with-option name="href" select="resolve-uri('chapters/next.xhtml', $scratch-dir-uri)"/>
+    <p:with-option name="href" select="resolve-uri('chapters/next.xhtml', $publication-dir-uri)"/>
   </p:store>
 
   <p:store name="cover">
@@ -28,7 +30,7 @@
         <svg:svg width="1" height="1"><svg:title>Published cover</svg:title></svg:svg>
       </p:inline>
     </p:input>
-    <p:with-option name="href" select="resolve-uri('images/cover.svg', $scratch-dir-uri)"/>
+    <p:with-option name="href" select="resolve-uri('images/cover.svg', $publication-dir-uri)"/>
   </p:store>
 
   <p:for-each name="check-publication">
@@ -58,7 +60,7 @@
     <tx:export-xhtml/>
 
     <p:store name="proof" method="xhtml">
-      <p:with-option name="href" select="resolve-uri($filename, $scratch-dir-uri)"/>
+      <p:with-option name="href" select="resolve-uri($filename, $publication-dir-uri)"/>
     </p:store>
 
     <p:wrap-sequence wrapper="c:publication">
