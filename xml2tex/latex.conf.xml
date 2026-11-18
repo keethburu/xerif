@@ -3225,10 +3225,26 @@
                           else ()"/>
   </xsl:function>
 
-  <xsl:template match="dbk:link/dbk:phrase[@xml:lang][normalize-space()]" mode="xml2tex" priority="999">
+  <xsl:template match="dbk:phrase[@xml:lang][normalize-space()][ancestor::dbk:link or dbk:link]"
+                mode="xml2tex" priority="999">
     <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
-    <xsl:variable name="language" select="xml2tex:toc-link-label-language(., $toc-heading-language)"/>
-    <xsl:value-of select="concat('\foreignlanguage{', $language, '}{')[$language]"/>
+    <xsl:param name="group-toc-link-label" as="xs:boolean?" tunnel="yes"/>
+    <xsl:variable name="language"
+                  select="if ($group-toc-link-label or parent::dbk:link or
+                              (dbk:link and not(.//text()[normalize-space()]
+                                [not(ancestor::dbk:link | ancestor::dbk:mediaobject | ancestor::dbk:inlinemediaobject)])))
+                          then xml2tex:toc-link-label-language(., $toc-heading-language)
+                          else ()"/>
+    <xsl:choose>
+      <xsl:when test="$language and $group-toc-link-label">
+        <xsl:element name="xml2tex:link-label-language">
+          <xsl:value-of select="$language"/>
+        </xsl:element>
+      </xsl:when>
+      <xsl:when test="$language">
+        <xsl:value-of select="concat('\foreignlanguage{', $language, '}{')"/>
+      </xsl:when>
+    </xsl:choose>
     <xsl:next-match/>
     <xsl:value-of select="'}'[$language]"/>
   </xsl:template>
@@ -3338,6 +3354,18 @@
   
   <!-- URLs where the URL matches the link text -->
   
+  <xsl:template match="dbk:link[@xlink:href = replace(.,'\\([#%_])','$1')]
+                              [matches(@xlink:href, '^(https?|ftp):')]
+                              [dbk:phrase[@role = 'Hyperlink'][@xml:lang][. = ..]]"
+                mode="xml2tex" priority="999">
+    <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
+    <xsl:variable name="language"
+                  select="xml2tex:toc-link-label-language(dbk:phrase[@role = 'Hyperlink'][@xml:lang][. = ..][1], $toc-heading-language)"/>
+    <xsl:value-of select="concat('\foreignlanguage{', $language, '}{')[$language]"/>
+    <xsl:next-match/>
+    <xsl:value-of select="'}'[$language]"/>
+  </xsl:template>
+
   <template context="dbk:link[@xlink:href = replace(.,'\\([#%_])','$1')]
                              [matches(@xlink:href, '^(https?|ftp):') or matches(., '^(https?|ftp):')]
                              [not(matches(@xlink:href, 'mailto:|@'))(:mail address:)]
@@ -3393,6 +3421,7 @@
   <template context="dbk:link[@linkend]">
     <xsl:param name="dissolve-hyperlink" as="xs:boolean?" tunnel="yes"/>
     <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
+    <xsl:param name="suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
     <xsl:variable name="linkend" select="@linkend" as="attribute(linkend)"/>
     <xsl:variable name="footnote-anchor" as="element(dbk:anchor)?" 
                   select="//dbk:anchor[@xml:id eq $linkend]
@@ -3423,14 +3452,25 @@
           <xsl:otherwise>
           <!--  keep formatting  https://redmine.le-tex.de/issues/15153 and duplicate curled brackets -->
             <xsl:variable name="content-with-formatting" as="node()*">
-              <xsl:apply-templates select="node()" mode="#current"/>
+              <xsl:apply-templates select="node()" mode="#current">
+                <xsl:with-param name="group-toc-link-label" select="exists($toc-heading-language)" tunnel="yes"/>
+                <xsl:with-param name="suppress-foreign-lang"
+                                select="if ($toc-heading-language) then true() else $suppress-foreign-lang" tunnel="yes"/>
+              </xsl:apply-templates>
             </xsl:variable>
-            <xsl:variable name="label" select="replace(string-join($content-with-formatting, ''), '(\\[a-z])', '{$1')"/>
-            <xsl:variable name="grouped-label"
-                          select="if ($toc-heading-language)
-                                  then replace($label, '(\\foreignlanguage\{[^{}]*\})|(\})', '$1$2$2')
-                                  else replace($label, '\}', '}}')"/>
-            <xsl:value-of select="concat('{\hyperlink{', $ref, '}{', $grouped-label, '}}')"/>
+            <xsl:variable name="grouped-label" as="xs:string*">
+              <xsl:for-each-group select="$content-with-formatting" group-adjacent="exists(self::xml2tex:link-label-language)">
+                <xsl:choose>
+                  <xsl:when test="current-grouping-key()">
+                    <xsl:sequence select="for $language in current-group() return concat('{\foreignlanguage{', $language, '}{')"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:sequence select="replace(replace(string-join(current-group(), ''), '(\\[a-z])', '{$1'), '\}', '}}')"/>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:for-each-group>
+            </xsl:variable>
+            <xsl:value-of select="concat('{\hyperlink{', $ref, '}{', string-join($grouped-label, ''), '}}')"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
