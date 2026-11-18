@@ -82,6 +82,7 @@
             </xsl:copy>
           </xsl:template>
 
+          <!-- The renderer can prepend a remote source directory already present in the locator. -->
           <xsl:function name="tx:strip-source-directory" as="xs:string">
             <xsl:param name="value" as="xs:string"/>
             <xsl:variable name="locator" select="replace($value, '^file:(///|/)([^/]|$)', '/$2', 'i')"/>

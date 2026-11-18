@@ -115,6 +115,14 @@ Output formats include:
 - EPUB
 - HTML
 
+The HTML publication template uses the input XHTML head's nonblank title when
+available and falls back to the title-page text. It preserves root attributes
+such as `xml:lang` and `dir`. Standalone XHTML omits the root `xml:base`,
+absolute root `srcpath` values, and `source-dir-uri` metadata. Place linked
+files and images according to their paths relative to the exported XHTML.
+Validation reports use the source directory to match diagnostics and remove its
+prefix from generated fallback locators.
+
 ## Technology
 
 xerif is built around several open-source technologies:
@@ -155,6 +163,10 @@ a9s/my-client/
 ```
 
 Please see the [xml2tex README](https://github.com/transpect/xml2tex#configuration) on how to configure the xml2tex configuration.
+
+The built-in XML2TeX mapping defaults `notes-type` to `footnotes` and
+`notes-per-chapter` to `no` when those parameters are omitted. For endnotes, set
+`notes-type=endnotes`.
 
 ## Lightweight checks
 
