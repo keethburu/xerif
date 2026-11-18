@@ -7,6 +7,7 @@
   xmlns:xml2tex="http://transpect.io/xml2tex"
   xmlns:hub2htm="http://transpect.io/hub2htm"
   xmlns:html="http://www.w3.org/1999/xhtml"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:tx="http://transpect.io/xerif"
   version="1.0"
   name="htmlreport" 
@@ -44,7 +45,7 @@
     <p:with-option name="attribute-value" select="$source-dir-uri"/>
   </p:add-attribute>
 
-  <p:insert match="/html:html/html:head[not(html:meta[@name = 'source-dir-uri'])]" position="last-child">
+  <p:insert name="report-input" match="/html:html/html:head[not(html:meta[@name = 'source-dir-uri'])]" position="last-child">
     <p:input port="source">
       <p:pipe step="htmlreport" port="source"/>
     </p:input>
@@ -65,6 +66,43 @@
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
   </tr:patch-svrl>
+
+  <p:xslt>
+    <p:input port="stylesheet">
+      <p:inline>
+        <xsl:stylesheet version="2.0">
+          <xsl:param name="source-dir-uri"/>
+          <xsl:variable name="directory" select="replace($source-dir-uri, '^file:/+', '/')"/>
+
+          <xsl:template match="@* | node()">
+            <xsl:copy>
+              <xsl:apply-templates select="@* | node()"/>
+            </xsl:copy>
+          </xsl:template>
+
+          <xsl:template match="html:span[tokenize(@class, '\s+') = 'BC_srcpath']/text()
+                               | html:p[tokenize(@class, '\s+') = 'BC_srcpath_msg']/@title">
+            <xsl:variable name="locator" select="replace(., '(^|\s)file:/+', '$1/')"/>
+            <xsl:variable name="redacted" select="
+              if (starts-with($directory, '/') and string-length($directory) gt 1 and contains($locator, $directory))
+              then concat(substring-before($locator, $directory), replace(substring-after($locator, $directory), '^/', ''))
+              else string(.)"/>
+            <xsl:choose>
+              <xsl:when test="self::attribute()">
+                <xsl:attribute name="title" select="$redacted"/>
+              </xsl:when>
+              <xsl:otherwise><xsl:value-of select="$redacted"/></xsl:otherwise>
+            </xsl:choose>
+          </xsl:template>
+        </xsl:stylesheet>
+      </p:inline>
+    </p:input>
+    <p:input port="parameters"><p:empty/></p:input>
+    <p:with-param name="source-dir-uri"
+      select="string((/html:html/html:head/html:meta[@name = 'source-dir-uri']/@content)[1])">
+      <p:pipe step="report-input" port="result"/>
+    </p:with-param>
+  </p:xslt>
 
   <tx:export-xhtml/>
  

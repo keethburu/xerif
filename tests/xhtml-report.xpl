@@ -60,6 +60,25 @@
               <html:span class="issue">Several caption paras and image contained</html:span>
             </svrl:text>
           </svrl:successful-report>
+          <svrl:successful-report id="table_in_heading" role="warning" location="/dbk:hub/dbk:title[1]">
+            <svrl:text>
+              <s:span class="srcpath">file:///private/manuscript/</s:span>
+              <html:span class="issue">Table in heading</html:span>
+            </svrl:text>
+          </svrl:successful-report>
+          <svrl:successful-report id="missing_story" role="warning" location="/dbk:hub/dbk:para[2]">
+            <svrl:text>
+              <s:span class="srcpath">file:/private/manuscript/Stories/Missing.xml</s:span>
+              <html:span class="issue">Unavailable story</html:span>
+            </svrl:text>
+          </svrl:successful-report>
+          <svrl:successful-report id="adjusted_location" role="warning" location="/dbk:hub/dbk:para[1]/dbk:phrase[1]">
+            <svrl:text>
+              <s:span class="srcpath">file:///private/manuscript/Stories/Story_u1.xml?xpath=/Story[1]/ParagraphStyleRange[1]/CharacterStyleRange[1]</s:span>
+              <html:span class="issue">Diagnostic on a removed phrase</html:span>
+              <html:p class="BC_srcpath_msg" title="srcpath file:///private/manuscript/Stories/Story_u1.xml?xpath=/Story[1]/ParagraphStyleRange[1]/CharacterStyleRange[1] was removed">The original phrase was removed.</html:p>
+            </svrl:text>
+          </svrl:successful-report>
         </svrl:schematron-output>
       </p:inline>
     </p:input>
@@ -90,6 +109,15 @@
                               //html:div[tokenize(@class, '\s+') = 'BC_message-text']
                               [contains(., 'Several caption paras and image contained')])">
               <xsl:message terminate="yes">The caption diagnostic must be located on the reported paragraph.</xsl:message>
+            </xsl:if>
+            <xsl:variable name="fallback" select="//html:p[tokenize(@class, '\s+') = 'BC_fallback-messages']"/>
+            <xsl:if test="not($fallback[contains(., 'Table in heading')]/html:span[@class = 'BC_srcpath'][. = '']
+                           and $fallback[contains(., 'Unavailable story')]/html:span[@class = 'BC_srcpath'][. = 'Stories/Missing.xml'])">
+              <xsl:message terminate="yes">Fallback diagnostics must retain their message and any relative location.</xsl:message>
+            </xsl:if>
+            <xsl:if test="not(//html:p[@id = 'reported-paragraph']//*[@class = 'BC_srcpath_msg']/@title
+                              = 'srcpath Stories/Story_u1.xml?xpath=/Story[1]/ParagraphStyleRange[1]/CharacterStyleRange[1] was removed')">
+              <xsl:message terminate="yes">The adjusted-location tooltip must retain the relative locator.</xsl:message>
             </xsl:if>
             <xsl:if test="//@source-dir-uri or //html:meta[@name = 'source-dir-uri']
                           or (some $value in (//@*, //text()) satisfies contains($value, '/private/manuscript/'))">

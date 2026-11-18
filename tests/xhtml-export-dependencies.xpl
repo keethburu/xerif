@@ -75,6 +75,10 @@
                             and html:html/html:head/html:meta[@name = 'source-dir-uri']/@content = 'file:///private/manuscript/')">
                 <xsl:message terminate="yes">EPUB conversion must receive source-dir-uri.</xsl:message>
               </xsl:if>
+              <xsl:if test="not(html:html/@srcpath = ('file:///private/manuscript/Book.tei.xml?xpath=/TEI[1]',
+                                                     '../manuscript/Book.tei.xml?xpath=/TEI[1]'))">
+                <xsl:message terminate="yes">EPUB conversion must receive the root srcpath.</xsl:message>
+              </xsl:if>
               <c:result>proof.epub</c:result>
             </xsl:template>
           </xsl:stylesheet>

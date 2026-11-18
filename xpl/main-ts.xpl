@@ -469,8 +469,8 @@
     </p:input>
     <p:with-option name="source-dir-uri"
       select="string((/*/dbk:info/dbk:keywordset[@role = 'hub']/dbk:keyword[@role = 'source-dir-uri'],
-                      /*/tei:teiHeader//tei:keywords/tei:term[@key = 'source-dir-uri'],
-                      /*/@source-dir-uri)[normalize-space()][1])">
+                      /*/tei:teiHeader/tei:profileDesc/tei:textClass/tei:keywords[not(@rendition)]
+                        /tei:term[@key = 'source-dir-uri'])[normalize-space()][1])">
       <p:pipe port="result" step="copy-images-and-patch-filerefs"/>
     </p:with-option>
     <p:with-option name="debug" select="$debug"/>

@@ -87,6 +87,10 @@
       <p:with-option name="attribute-value" select="$source-base"/>
     </p:add-attribute>
 
+    <p:add-attribute match="/html:html" attribute-name="srcpath">
+      <p:with-option name="attribute-value" select="concat($source-base, 'Book.tei.xml?xpath=/TEI[1]')"/>
+    </p:add-attribute>
+
     <p:choose>
       <p:when test="$converter = 'html'">
         <p:output port="result" primary="true">
@@ -141,12 +145,16 @@
       <p:input port="stylesheet">
         <p:inline>
           <xsl:stylesheet version="2.0">
+            <xsl:param name="expected-root-srcpath"/>
             <xsl:template match="/">
               <xsl:variable name="root" select="html:html"/>
               <xsl:variable name="link" select="$root/html:body/html:a"/>
               <xsl:variable name="image" select="$root/html:body/html:img"/>
               <xsl:if test="//@source-dir-uri or //html:meta[@name = 'source-dir-uri']">
                 <xsl:message terminate="yes">Serialized XHTML must omit source-dir-uri.</xsl:message>
+              </xsl:if>
+              <xsl:if test="not(deep-equal($root/@srcpath/string(), $expected-root-srcpath[. ne '']))">
+                <xsl:message terminate="yes">Serialized XHTML must omit the absolute root srcpath and preserve the relative one.</xsl:message>
               </xsl:if>
               <xsl:if test="$root/@xml:base or not($root/@xml:lang = 'en' and $root/@dir = 'ltr'
                             and $root/html:head/html:title = 'Proof'
@@ -167,6 +175,8 @@
         </p:inline>
       </p:input>
       <p:input port="parameters"><p:empty/></p:input>
+      <p:with-param name="expected-root-srcpath"
+        select="if (ends-with($filename, '-relative.xhtml')) then '../manuscript/Book.tei.xml?xpath=/TEI[1]' else ''"/>
     </p:xslt>
   </p:for-each>
 </p:declare-step>
