@@ -178,3 +178,17 @@ churn, not live heap; process high-water RSS includes compilation and prior runs
 These limited local measurements do not establish normal Scripello latency or
 PDF correctness. A styled-link transformation keeps one additional full source
 context tree; its cost also depends on the rest of the document.
+
+## Standalone XHTML export regression
+
+Run with the transpect Calabash launcher and a dedicated scratch directory:
+
+```sh
+CATALOGS="$PWD/tests/xhtml-export-catalog.xml" \
+  /path/to/transpect/calabash/calabash.sh tests/xhtml-export.xpl \
+  scratch-dir-uri=file:///absolute/path/to/scratch
+```
+
+The catalog supplies stand-ins for external conversion and EPUB packaging. The
+fixture runs Xerif's HTML and TEI pipelines, serializes their public `html`
+outputs, and follows chapter and cover references from the publication directory.

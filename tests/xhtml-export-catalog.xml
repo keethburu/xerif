@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <uri name="http://transpect.io/cascade/xpl/dynamic-transformation-pipeline.xpl" uri="xhtml-export-dependencies.xpl"/>
+  <uri name="http://transpect.io/epubtools/xpl/epub-convert.xpl" uri="xhtml-export-dependencies.xpl"/>
+  <uri name="http://transpect.io/htmltemplates/xpl/htmltemplates.xpl" uri="xhtml-export-dependencies.xpl"/>
+  <uri name="http://transpect.io/tei2html/xpl/tei2html.xpl" uri="xhtml-export-dependencies.xpl"/>
+</catalog>

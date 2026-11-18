@@ -11,7 +11,8 @@
     <p:pipe step="check-publication" port="result"/>
   </p:output>
   <p:option name="scratch-dir-uri" required="true"/>
-  <p:import href="../xpl/export-xhtml.xpl"/>
+  <p:import href="../xpl/html2epub.xpl"/>
+  <p:import href="../xpl/tei2epub.xpl"/>
   <p:variable name="publication-dir-uri"
     select="if (ends-with($scratch-dir-uri, '/')) then $scratch-dir-uri else concat($scratch-dir-uri, '/')"/>
 
@@ -33,14 +34,29 @@
     <p:with-option name="href" select="resolve-uri('images/cover.svg', $publication-dir-uri)"/>
   </p:store>
 
+  <p:identity name="paths">
+    <p:input port="source">
+      <p:inline><c:param-set><c:param name="basename" value="proof"/></c:param-set></p:inline>
+    </p:input>
+  </p:identity>
+
+  <p:identity name="metadata">
+    <p:input port="source">
+      <p:inline><epub-config><cover href="images/cover.svg"/></epub-config></p:inline>
+    </p:input>
+  </p:identity>
+
   <p:for-each name="check-publication">
     <p:iteration-source>
-      <p:inline><c:base name="absolute">file:///private/manuscript/</c:base></p:inline>
-      <p:inline><c:base name="relative">../manuscript/</c:base></p:inline>
+      <p:inline><c:base converter="html" name="absolute">file:///private/manuscript/</c:base></p:inline>
+      <p:inline><c:base converter="html" name="relative">../manuscript/</c:base></p:inline>
+      <p:inline><c:base converter="tei" name="absolute">file:///private/manuscript/</c:base></p:inline>
+      <p:inline><c:base converter="tei" name="relative">../manuscript/</c:base></p:inline>
     </p:iteration-source>
     <p:output port="result"/>
     <p:variable name="source-base" select="string(/c:base)"/>
-    <p:variable name="filename" select="concat(/c:base/@name, '.xhtml')"/>
+    <p:variable name="converter" select="string(/c:base/@converter)"/>
+    <p:variable name="filename" select="concat($converter, '-', /c:base/@name, '.xhtml')"/>
 
     <p:add-attribute match="/html:html" attribute-name="xml:base">
       <p:input port="source">
@@ -57,7 +73,30 @@
       <p:with-option name="attribute-value" select="$source-base"/>
     </p:add-attribute>
 
-    <tx:export-xhtml/>
+    <p:choose>
+      <p:when test="$converter = 'html'">
+        <p:output port="result" primary="true">
+          <p:pipe step="convert-html" port="html"/>
+        </p:output>
+        <tx:html2epub name="convert-html">
+          <p:input port="params"><p:pipe step="paths" port="result"/></p:input>
+          <p:input port="meta"><p:pipe step="metadata" port="result"/></p:input>
+          <p:with-option name="debug" select="'no'"/>
+        </tx:html2epub>
+        <p:sink/>
+      </p:when>
+      <p:otherwise>
+        <p:output port="result" primary="true">
+          <p:pipe step="convert-tei" port="html"/>
+        </p:output>
+        <tx:tei2epub name="convert-tei">
+          <p:input port="params"><p:pipe step="paths" port="result"/></p:input>
+          <p:input port="meta"><p:pipe step="metadata" port="result"/></p:input>
+          <p:with-option name="debug" select="'no'"/>
+        </tx:tei2epub>
+        <p:sink/>
+      </p:otherwise>
+    </p:choose>
 
     <p:store name="proof" method="xhtml">
       <p:with-option name="href" select="resolve-uri($filename, $publication-dir-uri)"/>
