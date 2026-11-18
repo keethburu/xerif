@@ -1304,6 +1304,7 @@
             <with-param name="remove-newline" select="true()" as="xs:boolean?" tunnel="yes"/>
             <with-param name="remove-indexterm" select="true()" as="xs:boolean?" tunnel="yes"/>
             <with-param name="suppress-foreign-lang" select="empty($lang-start)" as="xs:boolean" tunnel="yes"/>
+            <with-param name="toc-heading-language" select="dbk:title/@xml:lang[exists($lang-start)]" as="attribute(xml:lang)?" tunnel="yes"/>
             <with-param name="remove-textcolor" select="$remove-textcolor-for-runningtitles" as="xs:boolean?" tunnel="yes"/>
           </param>
         </rule>
@@ -1344,6 +1345,7 @@
           <xsl:variable name="lang-end" select="'}'[exists($lang-start)]"/>
           <param select="$lang-start, dbk:title/node()[not(self::dbk:phrase[@role = ('identifier', 'hub:identifier')])], $lang-end">
             <with-param name="suppress-foreign-lang" select="empty($lang-start)" as="xs:boolean" tunnel="yes"/>
+            <with-param name="toc-heading-language" select="dbk:title/@xml:lang[exists($lang-start)]" as="attribute(xml:lang)?" tunnel="yes"/>
             <with-param name="toc-override" select="true()" as="xs:boolean" tunnel="yes"/>
             <with-param name="remove-textcolor" select="$remove-textcolor-for-runningtitles" as="xs:boolean?" tunnel="yes"/>
           </param>
@@ -1363,6 +1365,7 @@
             <xsl:variable name="lang-end" select="'}'[exists($lang-start)]"/>
             <param select="$lang-start, dbk:subtitle/node(), $lang-end">
               <with-param name="suppress-foreign-lang" select="empty($lang-start)" as="xs:boolean" tunnel="yes"/>
+              <with-param name="toc-heading-language" select="dbk:subtitle/@xml:lang[exists($lang-start)]" as="attribute(xml:lang)?" tunnel="yes"/>
               <with-param name="toc-override" select="true()" as="xs:boolean" tunnel="yes"/>
               <with-param name="remove-textcolor" select="$remove-textcolor-for-runningtitles" as="xs:boolean?" tunnel="yes"/>
             </param>
@@ -3212,8 +3215,27 @@
   <!-- escape special characters in \url and \href inside footnotes
        https://redmine.le-tex.de/issues/5376 -->  
 
+  <xsl:function name="xml2tex:toc-link-label-language" as="xs:string?">
+    <xsl:param name="phrase" as="element(dbk:phrase)"/>
+    <xsl:param name="toc-heading-language" as="attribute(xml:lang)?"/>
+    <xsl:sequence select="if ($toc-heading-language and
+                             ($phrase/@xml:lang != $toc-heading-language or
+                              $phrase/ancestor::dbk:phrase[@xml:lang][1]/@xml:lang != $phrase/@xml:lang))
+                          then xml2tex:lang-to-babel-lang($phrase/@xml:lang)[normalize-space()]
+                          else ()"/>
+  </xsl:function>
+
+  <xsl:template match="dbk:link/dbk:phrase[@xml:lang][normalize-space()]" mode="xml2tex" priority="999">
+    <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
+    <xsl:variable name="language" select="xml2tex:toc-link-label-language(., $toc-heading-language)"/>
+    <xsl:value-of select="concat('\foreignlanguage{', $language, '}{')[$language]"/>
+    <xsl:next-match/>
+    <xsl:value-of select="'}'[$language]"/>
+  </xsl:template>
+
   <xsl:function name="xml2tex:replace-recursive-linktext" as="node()*">
     <xsl:param name="nodes" as="node()*"/>
+    <xsl:param name="toc-heading-language" as="attribute(xml:lang)?"/>
      <xsl:for-each select="$nodes">
        <xsl:choose>
          <xsl:when test=".[self::text()]"><xsl:sequence select="xml2tex:add-tactical-breaks-by-string-length(xml2tex:add-tactical-break-chars-in-linktext(.))"/></xsl:when>
@@ -3223,6 +3245,7 @@
              <xsl:copy-of select="root(.)//css:rules"/>
              <xsl:apply-templates select="." mode="copy">
                <xsl:with-param name="replace-linktext" as="xs:boolean" select="true()" tunnel="yes"/>
+               <xsl:with-param name="toc-heading-language" select="$toc-heading-language" tunnel="yes"/>
              </xsl:apply-templates>
            </xsl:variable>
            <xsl:sequence select="$replacement/node() except $replacement/css:rules"/>
@@ -3250,6 +3273,13 @@
   
   <xsl:template match="dbk:link/@xml:lang
                       |dbk:link/*/@xml:lang" mode="copy"/>
+
+  <xsl:template match="dbk:link/dbk:phrase/@xml:lang" mode="copy" priority="1">
+    <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
+    <xsl:if test="xml2tex:toc-link-label-language(.., $toc-heading-language)">
+      <xsl:copy/>
+    </xsl:if>
+  </xsl:template>
   
   <xsl:function name="xml2tex:add-tactical-breaks-by-string-length">
     <xsl:param name="url" as="xs:string"/>
@@ -3299,9 +3329,10 @@
   <template context="dbk:link[@xlink:href != .][@xlink:href][matches(@xlink:href, '^(https?|ftp):') or matches(., '^(https?|ftp):')]|
                      dbk:link[matches(@xlink:href, 'mailto:|@')]">
     <!-- this only works if option 'collect-all-xsl' on xml2tex is set to yes. otherwise templates matching the same elements in different modes will not be considered -->
+    <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
     <rule name="href" type="cmd">
       <param select="replace(xml2tex:optionally-encode-uri((@url, @xlink:href)[1]), '(%|#|_|\\)', '\\$1' )"/>
-      <param select="xml2tex:replace-recursive-linktext(node())"/>
+      <param select="xml2tex:replace-recursive-linktext(node(), $toc-heading-language)"/>
     </rule>
   </template>
   
@@ -3361,6 +3392,7 @@
   
   <template context="dbk:link[@linkend]">
     <xsl:param name="dissolve-hyperlink" as="xs:boolean?" tunnel="yes"/>
+    <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
     <xsl:variable name="linkend" select="@linkend" as="attribute(linkend)"/>
     <xsl:variable name="footnote-anchor" as="element(dbk:anchor)?" 
                   select="//dbk:anchor[@xml:id eq $linkend]
@@ -3393,7 +3425,12 @@
             <xsl:variable name="content-with-formatting" as="node()*">
               <xsl:apply-templates select="node()" mode="#current"/>
             </xsl:variable>
-            <xsl:value-of select="concat('{\hyperlink{', $ref, '}{', replace(replace(string-join($content-with-formatting, ''), '(\\[a-z])', '{$1'), '\}', '}}'), '}}')"/>
+            <xsl:variable name="label" select="replace(string-join($content-with-formatting, ''), '(\\[a-z])', '{$1')"/>
+            <xsl:variable name="grouped-label"
+                          select="if ($toc-heading-language)
+                                  then replace($label, '(\\foreignlanguage\{[^{}]*\})|(\})', '$1$2$2')
+                                  else replace($label, '\}', '}}')"/>
+            <xsl:value-of select="concat('{\hyperlink{', $ref, '}{', $grouped-label, '}}')"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
