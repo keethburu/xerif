@@ -3241,13 +3241,33 @@
   <!-- escape special characters in \url and \href inside footnotes
        https://redmine.le-tex.de/issues/5376 -->  
 
+  <xsl:function name="xml2tex:toc-text-language" as="xs:string">
+    <xsl:param name="text" as="text()"/>
+    <xsl:param name="container" as="element()"/>
+    <xsl:param name="outer-language" as="xs:string"/>
+    <xsl:variable name="phrase" select="$text/ancestor::dbk:phrase[ancestor::*[. is $container]]
+                                       [@xml:lang][xml2tex:lang-to-babel-lang(@xml:lang)[normalize-space()]][1]"/>
+    <xsl:sequence select="(xml2tex:lang-to-babel-lang($phrase/@xml:lang)[normalize-space()], $outer-language)[1]"/>
+  </xsl:function>
+
   <xsl:template match="dbk:phrase[@xml:lang][normalize-space()]"
                 mode="xml2tex" priority="999">
     <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
     <xsl:param name="toc-phrase-language" as="xs:string?" tunnel="yes"/>
-    <xsl:param name="group-toc-link-label" as="xs:boolean?" tunnel="yes"/>
     <xsl:variable name="phrase-language" select="xml2tex:lang-to-babel-lang(@xml:lang)[$toc-heading-language][normalize-space()]"/>
     <xsl:variable name="language" select="$phrase-language[. ne ($toc-phrase-language, xml2tex:lang-to-babel-lang($toc-heading-language))[1]]"/>
+    <xsl:call-template name="toc-language-start">
+      <xsl:with-param name="language" select="$language"/>
+    </xsl:call-template>
+    <xsl:next-match>
+      <xsl:with-param name="toc-phrase-language" select="($language, $toc-phrase-language)[1]" tunnel="yes"/>
+    </xsl:next-match>
+    <xsl:value-of select="'}'[$language]"/>
+  </xsl:template>
+
+  <xsl:template name="toc-language-start">
+    <xsl:param name="language" as="xs:string?"/>
+    <xsl:param name="group-toc-link-label" as="xs:boolean?" tunnel="yes"/>
     <xsl:choose>
       <xsl:when test="$language and $group-toc-link-label">
         <xsl:element name="xml2tex:link-label-language">
@@ -3258,10 +3278,6 @@
         <xsl:value-of select="concat('\foreignlanguage{', $language, '}{')"/>
       </xsl:when>
     </xsl:choose>
-    <xsl:next-match>
-      <xsl:with-param name="toc-phrase-language" select="($phrase-language, $toc-phrase-language)[1]" tunnel="yes"/>
-    </xsl:next-match>
-    <xsl:value-of select="'}'[$language]"/>
   </xsl:template>
 
   <xsl:function name="xml2tex:replace-recursive-linktext" as="node()*">
@@ -3364,31 +3380,31 @@
   </template>
 
   <template name="external-link-label">
-    <xsl:param name="uri-label" as="xs:boolean" select="false()"/>
+    <xsl:param name="url-runs" as="xs:boolean" select="false()"/>
     <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
-    <xsl:variable name="destination" select="if ($uri-label) then @xlink:href else (@url, @xlink:href)[1]"/>
+    <xsl:variable name="destination" select="if ($url-runs) then @xlink:href else (@url, @xlink:href)[1]"/>
     <rule name="href" type="cmd">
       <param select="replace(xml2tex:optionally-encode-uri($destination), '(%|#|_|\\)', '\\$1' )"/>
       <param>
-        <xsl:variable name="label" select="xml2tex:replace-recursive-linktext(node(), $toc-heading-language)"/>
-        <xsl:choose>
-          <xsl:when test="$uri-label">
-            <xsl:text>\UrlFont{}</xsl:text>
-            <xsl:variable name="tex" as="node()*">
-              <xsl:apply-templates select="$label" mode="xml2tex"/>
-            </xsl:variable>
-            <xsl:variable name="break-character" select="$xml2tex:tactical-break-character-for-urls[normalize-space()]"/>
-            <xsl:value-of select="if ($break-character)
-                                  then replace(string-join($tex, ''), $break-character, '\allowbreak{}', 'q')
-                                  else string-join($tex, '')"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:apply-templates select="$label" mode="xml2tex"/>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="if ($url-runs) then node()
+                                     else xml2tex:replace-recursive-linktext(node(), $toc-heading-language)" mode="xml2tex">
+          <xsl:with-param name="url-runs" select="$url-runs" tunnel="yes"/>
+        </xsl:apply-templates>
       </param>
     </rule>
   </template>
+
+  <xsl:template match="dbk:link//text()" mode="xml2tex" priority="100001">
+    <xsl:param name="url-runs" as="xs:boolean?" tunnel="yes"/>
+    <xsl:choose>
+      <xsl:when test="$url-runs">
+        <xsl:value-of select="concat('\nolinkurl{', ., '}')"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:next-match/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
   
   <!-- URLs where the URL matches the link text -->
   
@@ -3405,17 +3421,14 @@
     <xsl:variable name="label-languages"
                   select="if ($toc-heading-language)
                           then distinct-values(for $text in .//text()[normalize-space()]
-                               return (xml2tex:lang-to-babel-lang(
-                                         $text/ancestor::dbk:phrase[ancestor::dbk:link][@xml:lang]
-                                           [xml2tex:lang-to-babel-lang(@xml:lang)[normalize-space()]][1]/@xml:lang
-                                       )[normalize-space()], $outer-language)[1])
+                                               return xml2tex:toc-text-language($text, ., $outer-language))
                           else ()"/>
     <xsl:choose>
       <xsl:when test="not($label-languages != $outer-language)">
         <xsl:next-match/>
       </xsl:when>
       <xsl:when test="count($label-languages) eq 1
-                      and dbk:phrase[@role = 'Hyperlink'][. = ..]
+                      and dbk:phrase[@role = 'Hyperlink']
                       and @xlink:href = replace(.,'\\([#%_])','$1')">
         <xsl:value-of select="concat('\foreignlanguage{', $label-languages, '}{')"/>
         <xsl:next-match/>
@@ -3423,7 +3436,7 @@
       </xsl:when>
       <xsl:otherwise>
         <xsl:call-template name="external-link-label">
-          <xsl:with-param name="uri-label" select="true()"/>
+          <xsl:with-param name="url-runs" select="true()"/>
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
@@ -3549,6 +3562,7 @@
                                                           )
                                                   ]">
     <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
+    <xsl:param name="toc-phrase-language" as="xs:string?" tunnel="yes"/>
     <xsl:value-of select="if(   self::dbk:superscript 
                              or self::dbk:phrase[exists(for $i in ./@role 
                                                           return $root/dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]
@@ -3562,9 +3576,21 @@
                                             if (@css:font-weight eq 'bold') then '\textbf{' else ())"/>
     <xsl:value-of select="string-join($font-start, '')"/>
     <xsl:choose>
-      <xsl:when test="exists($font-start) and
-                      not($toc-heading-language and
-                          descendant-or-self::dbk:phrase[@xml:lang][xml2tex:lang-to-babel-lang(@xml:lang)[normalize-space()]])">
+      <xsl:when test="exists($font-start) and $toc-heading-language
+                      and descendant::dbk:phrase[@xml:lang][xml2tex:lang-to-babel-lang(@xml:lang)[normalize-space()]]">
+        <xsl:variable name="script" select="."/>
+        <xsl:variable name="outer-language" select="($toc-phrase-language, xml2tex:lang-to-babel-lang($toc-heading-language))[1]"/>
+        <xsl:for-each-group select=".//text()" group-adjacent="xml2tex:toc-text-language(., $script, $outer-language)">
+          <xsl:variable name="language" select="current-grouping-key()[. ne $outer-language]"/>
+          <xsl:call-template name="toc-language-start">
+            <xsl:with-param name="language" select="$language"/>
+          </xsl:call-template>
+          <xsl:value-of select="string-join(xml2tex:utf2tex($script/parent::*, string-join(current-group(), ''),
+                                                         $charmap, (), $texregex), '')"/>
+          <xsl:value-of select="'}'[$language]"/>
+        </xsl:for-each-group>
+      </xsl:when>
+      <xsl:when test="exists($font-start)">
         <xsl:value-of select="string-join(xml2tex:utf2tex(.., ., $charmap, (), $texregex), '')"/>
       </xsl:when>
       <xsl:otherwise>
