@@ -12,13 +12,15 @@ from scripello.styles import compile_style, dgb_style
 running_style = compile_style(dgb_style(), 'small')
 
 failures = []
-for policy, per_chapter, second_start, style in (('footnotes', 'no', 1, None),
-                                                 ('endnotes', 'no', 5, None),
-                                                 ('endnotes', 'yes', 1, None),
-                                                 ('footnotes', 'yes', 1, running_style)):
-    xerif.RENDER_PARAMETERS['notes-type'] = policy
-    xerif.RENDER_PARAMETERS['notes-per-chapter'] = per_chapter
-    case = policy + '-per-chapter-' + per_chapter
+for case, note_settings, second_start, style in (
+    ('default-footnotes', {}, 1, None),
+    ('default-endnotes', {'notes-type': 'endnotes'}, 5, None),
+    ('endnotes-per-chapter-yes', {'notes-type': 'endnotes', 'notes-per-chapter': 'yes'}, 1, None),
+    ('footnotes-per-chapter-yes', {'notes-type': 'footnotes', 'notes-per-chapter': 'yes'}, 1, running_style),
+):
+    xerif.RENDER_PARAMETERS.pop('notes-type', None)
+    xerif.RENDER_PARAMETERS.pop('notes-per-chapter', None)
+    xerif.RENDER_PARAMETERS.update(note_settings)
     out = Path('/work') / case
     xerif.render(Path('/subject/tests/note-reference-hub.xml'), out, whole_book=True, style=style)
     pages = [page.extract_text() for page in PdfReader(out / 'output.pdf').pages]

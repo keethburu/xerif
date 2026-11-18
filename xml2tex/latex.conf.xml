@@ -43,8 +43,8 @@
   <xsl:param name="toc-depth" as="xs:string?"/>
   <xsl:param name="numbering-depth" as="xs:string?"/>
   <xsl:param name="title-pages" as="xs:string?"/>
-  <xsl:param name="notes-type" as="xs:string?"/>
-  <xsl:param name="notes-per-chapter" as="xs:string?"/>
+  <xsl:param name="notes-type" as="xs:string?" select="'footnotes'"/>
+  <xsl:param name="notes-per-chapter" as="xs:string?" select="'no'"/>
   <xsl:param name="notes-per-chapter-notoc" as="xs:string?"/>
   <xsl:param name="endnotes-with-chapter" as="xs:string?"/>
   <xsl:param name="running-header" as="xs:string?"/>
