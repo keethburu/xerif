@@ -37,6 +37,7 @@
             </html:head>
             <html:body>
               <html:p id="reported-paragraph" srcpath="Stories/Story_u1.xml?xpath=/Story[1]/ParagraphStyleRange[1]">Caption with image</html:p>
+              <html:p><html:span id="body-srcpath" class="BC_srcpath">{$source-dir-uri}handbook</html:span></html:p>
             </html:body>
           </html:html>
           <svrl:schematron-output tr:rule-family="flat-hub">
@@ -74,7 +75,8 @@
       select="concat(if (starts-with($source-dir-uri, 'file:')) then $source-dir-uri else '',
                      'Stories/Story_u1.xml?xpath=/Story[1]/ParagraphStyleRange[1]')"/>
     <p:with-param name="missing-locator"
-      select="concat(replace($source-dir-uri, '^file:/+', 'file:/'), 'Stories/Missing.xml')"/>
+      select="concat(replace($source-dir-uri, '^file:/+', 'file:/'),
+                     'Stories/Missing.xml?xpath=/Story[1]/ParagraphStyleRange[2]')"/>
   </p:template>
 
   <tx:export-xhtml>
@@ -121,15 +123,21 @@
             </xsl:if>
             <xsl:variable name="fallback" select="//html:p[tokenize(@class, '\s+') = 'BC_fallback-messages']"/>
             <xsl:if test="not($fallback[contains(., 'Table in heading')]/html:span[@class = 'BC_srcpath'][. = '']
-                           and $fallback[contains(., 'Unavailable story')]/html:span[@class = 'BC_srcpath'][. = 'Stories/Missing.xml'])">
+                           and $fallback[contains(., 'Unavailable story')]/html:span[@class = 'BC_srcpath']
+                               [. = 'Stories/Missing.xml?xpath=/Story[1]/ParagraphStyleRange[2]'])">
               <xsl:message terminate="yes">Fallback diagnostics must retain their message and any relative location.</xsl:message>
             </xsl:if>
             <xsl:if test="not($fallback[contains(., 'Published reference')]/html:span[@class = 'BC_srcpath']
                               = 'https://editorial.example/private/book-guide/')">
               <xsl:message terminate="yes">The fallback report must preserve the public locator.</xsl:message>
             </xsl:if>
+            <xsl:variable name="body-span" select="//html:span[@id = 'body-srcpath'][@class = 'BC_srcpath']"/>
+            <xsl:if test="not($body-span = concat($source-dir-uri, 'handbook'))">
+              <xsl:message terminate="yes">The report must preserve the author-provided body span.</xsl:message>
+            </xsl:if>
             <xsl:if test="//@source-dir-uri or //html:meta[@name = 'source-dir-uri']
-                          or (some $value in (//@*, //text()) satisfies contains($value, $source-dir-uri))">
+                          or (some $value in (//@*, //text() except $body-span/text())
+                              satisfies contains($value, $source-dir-uri))">
               <xsl:message terminate="yes">The serialized report must omit the private source directory.</xsl:message>
             </xsl:if>
             <c:result>true</c:result>

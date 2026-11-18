@@ -67,6 +67,7 @@
         <p:inline>
           <xsl:stylesheet version="2.0">
             <xsl:param name="expected-epub-base"/>
+            <xsl:param name="expected-epub-srcpath"/>
             <xsl:template match="/">
               <xsl:if test="not(html:html/@xml:base = $expected-epub-base)">
                 <xsl:message terminate="yes">EPUB conversion must receive the expected root xml:base.</xsl:message>
@@ -75,8 +76,7 @@
                             and html:html/html:head/html:meta[@name = 'source-dir-uri']/@content = 'file:///private/manuscript/')">
                 <xsl:message terminate="yes">EPUB conversion must receive source-dir-uri.</xsl:message>
               </xsl:if>
-              <xsl:if test="not(html:html/@srcpath = ('file:///private/manuscript/Book.tei.xml?xpath=/TEI[1]',
-                                                     '../manuscript/Book.tei.xml?xpath=/TEI[1]'))">
+              <xsl:if test="not(html:html/@srcpath = $expected-epub-srcpath)">
                 <xsl:message terminate="yes">EPUB conversion must receive the root srcpath.</xsl:message>
               </xsl:if>
               <c:result>proof.epub</c:result>
@@ -86,6 +86,9 @@
       </p:input>
       <p:input port="parameters"><p:empty/></p:input>
       <p:with-param name="expected-epub-base" select="string(/epub-config/@expected-epub-base)">
+        <p:pipe step="package" port="meta"/>
+      </p:with-param>
+      <p:with-param name="expected-epub-srcpath" select="string(/epub-config/@expected-epub-srcpath)">
         <p:pipe step="package" port="meta"/>
       </p:with-param>
     </p:xslt>

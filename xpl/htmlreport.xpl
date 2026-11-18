@@ -7,6 +7,7 @@
   xmlns:xml2tex="http://transpect.io/xml2tex"
   xmlns:hub2htm="http://transpect.io/hub2htm"
   xmlns:html="http://www.w3.org/1999/xhtml"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:tx="http://transpect.io/xerif"
   version="1.0"
@@ -81,14 +82,20 @@
             </xsl:copy>
           </xsl:template>
 
-          <xsl:template match="html:span[tokenize(@class, '\s+') = 'BC_srcpath']/text()">
-            <xsl:variable name="locator" select="replace(., '^file:(///|/)([^/]|$)', '/$2', 'i')"/>
-            <xsl:value-of select="
-              if ($directory = '') then .
+          <xsl:function name="tx:strip-source-directory" as="xs:string">
+            <xsl:param name="value" as="xs:string"/>
+            <xsl:variable name="locator" select="replace($value, '^file:(///|/)([^/]|$)', '/$2', 'i')"/>
+            <xsl:sequence select="
+              if ($directory = '') then $value
               else if (replace($locator, '/+$', '') = $directory) then ''
               else if (starts-with($locator, concat($directory, '/')))
-              then substring($locator, string-length($directory) + 2)
-              else ."/>
+              then tx:strip-source-directory(substring($locator, string-length($directory) + 2))
+              else $value"/>
+          </xsl:function>
+
+          <xsl:template match="html:div[@class = 'BC_fallback']/html:p[@class = 'BC_fallback-messages']
+                               /html:span[@class = 'BC_srcpath']/text()">
+            <xsl:value-of select="tx:strip-source-directory(.)"/>
           </xsl:template>
         </xsl:stylesheet>
       </p:inline>

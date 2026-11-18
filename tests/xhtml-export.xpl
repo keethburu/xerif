@@ -44,30 +44,42 @@
   <p:for-each name="check-publication">
     <p:iteration-source>
       <p:inline>
-        <c:base converter="html" name="absolute" epub-base="file:///private/epub/proof.html">file:///private/manuscript/</c:base>
+        <c:base converter="html" name="absolute" epub-base="file:///private/epub/proof.html"
+          srcpath="file:///private/manuscript/Book.tei.xml?xpath=/TEI[1]">file:///private/manuscript/</c:base>
       </p:inline>
       <p:inline>
-        <c:base converter="html" name="relative" epub-base="../epub/proof.html">../manuscript/</c:base>
+        <c:base converter="html" name="relative" epub-base="../epub/proof.html"
+          srcpath="../manuscript/Book.tei.xml?xpath=/TEI[1]">../manuscript/</c:base>
       </p:inline>
       <p:inline>
-        <c:base converter="tei" name="absolute" epub-base="file:///private/epub-output/proof.epub">file:///private/manuscript/</c:base>
+        <c:base converter="tei" name="absolute" epub-base="file:///private/epub-output/proof.epub"
+          srcpath="file:///private/manuscript/Book.tei.xml?xpath=/TEI[1]">file:///private/manuscript/</c:base>
       </p:inline>
       <p:inline>
-        <c:base converter="tei" name="relative" epub-base="file:///private/epub-output/proof.epub">../manuscript/</c:base>
+        <c:base converter="tei" name="relative" epub-base="file:///private/epub-output/proof.epub"
+          srcpath="../manuscript/Book.tei.xml?xpath=/TEI[1]">../manuscript/</c:base>
       </p:inline>
     </p:iteration-source>
     <p:output port="result"/>
     <p:variable name="source-base" select="string(/c:base)"/>
+    <p:variable name="source-srcpath" select="string(/c:base/@srcpath)"/>
     <p:variable name="expected-epub-base" select="string(/c:base/@epub-base)"/>
     <p:variable name="converter" select="string(/c:base/@converter)"/>
     <p:variable name="filename" select="concat($converter, '-', /c:base/@name, '.xhtml')"/>
 
-    <p:add-attribute name="metadata" match="/epub-config" attribute-name="expected-epub-base">
-      <p:input port="source">
-        <p:inline><epub-config><cover href="images/cover.svg"/></epub-config></p:inline>
+    <p:template name="metadata">
+      <p:input port="source"><p:empty/></p:input>
+      <p:input port="template">
+        <p:inline>
+          <epub-config expected-epub-base="{$expected-epub-base}" expected-epub-srcpath="{$expected-epub-srcpath}">
+            <cover href="images/cover.svg"/>
+          </epub-config>
+        </p:inline>
       </p:input>
-      <p:with-option name="attribute-value" select="$expected-epub-base"/>
-    </p:add-attribute>
+      <p:input port="parameters"><p:empty/></p:input>
+      <p:with-param name="expected-epub-base" select="$expected-epub-base"/>
+      <p:with-param name="expected-epub-srcpath" select="$source-srcpath"/>
+    </p:template>
 
     <p:add-attribute match="/html:html" attribute-name="xml:base">
       <p:input port="source">
@@ -88,7 +100,7 @@
     </p:add-attribute>
 
     <p:add-attribute match="/html:html" attribute-name="srcpath">
-      <p:with-option name="attribute-value" select="concat($source-base, 'Book.tei.xml?xpath=/TEI[1]')"/>
+      <p:with-option name="attribute-value" select="$source-srcpath"/>
     </p:add-attribute>
 
     <p:choose>
