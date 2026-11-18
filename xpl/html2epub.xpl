@@ -53,6 +53,7 @@
   <p:import href="http://transpect.io/cascade/xpl/dynamic-transformation-pipeline.xpl"/>
   <p:import href="http://transpect.io/epubtools/xpl/epub-convert.xpl"/>
   <p:import href="http://transpect.io/htmltemplates/xpl/htmltemplates.xpl"/>
+  <p:import href="export-xhtml.xpl"/>
   
   <p:template name="load-epub-config-options-input">
     <p:input port="source">
@@ -77,7 +78,7 @@
       <p:pipe port="result" step="epub-convert"/>
     </p:output>
     <p:output port="html">
-      <p:pipe port="result" step="htmltemplates"/>
+      <p:pipe port="result" step="export-xhtml"/>
     </p:output>
     <p:output port="report" sequence="true">
       <p:pipe port="report" step="epub-convert"/>
@@ -155,6 +156,12 @@
     </epub:convert>
       
     <p:sink/>
+
+    <tx:export-xhtml name="export-xhtml">
+      <p:input port="source">
+        <p:pipe port="result" step="htmltemplates"/>
+      </p:input>
+    </tx:export-xhtml>
   </p:group>
 
 </p:declare-step>

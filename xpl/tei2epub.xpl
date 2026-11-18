@@ -49,6 +49,7 @@
   <p:import href="http://transpect.io/tei2html/xpl/tei2html.xpl"/>
   <p:import href="http://transpect.io/epubtools/xpl/epub-convert.xpl"/>
   <p:import href="http://transpect.io/htmltemplates/xpl/htmltemplates.xpl"/>
+  <p:import href="export-xhtml.xpl"/>
   
   <tei2html:tei2html name="tei2html">
     <p:input port="paths">
@@ -82,7 +83,7 @@
 
   <p:group name="create-epub" cx:depends-on="load-epub-config">
     <p:output port="html">
-      <p:pipe port="result" step="htmltemplates"/>
+      <p:pipe port="result" step="export-xhtml"/>
     </p:output>
     <p:output port="epub-file-uri">
       <p:pipe port="result" step="epub-convert"/>
@@ -180,6 +181,12 @@
     </epub:convert>
       
     <p:sink/>
+
+    <tx:export-xhtml name="export-xhtml">
+      <p:input port="source">
+        <p:pipe port="result" step="htmltemplates"/>
+      </p:input>
+    </tx:export-xhtml>
   </p:group>
   
 

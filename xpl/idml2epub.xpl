@@ -397,6 +397,10 @@
       <p:pipe port="reports" step="validate"/>
       <p:pipe port="reports" step="schematron-validation"/>
     </p:input>
+    <p:with-option name="source-dir-uri"
+      select="string((/*/dbk:info/dbk:keywordset[@role = 'hub']/dbk:keyword[@role = 'source-dir-uri'])[1])">
+      <p:pipe port="result" step="map-styles"/>
+    </p:with-option>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>

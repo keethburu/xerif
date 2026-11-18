@@ -15,11 +15,12 @@ Use the task's shared heavy-work lock and an external timeout when required.
 otherwise output is temporary. `XERIF_TEST_CONFIG` is only for a before-fix
 negative control; leave it unset when validating the current checkout.
 
-The regression extracts actual PDF text for default footnotes, default endnotes,
-and endnotes with chapter resets. A fourth render uses the bundled compiled
-De Gruyter Brill small proof variant to check alternating chapter running heads;
-the default proof package deliberately uses plain pages. Each repeated call must match its original
-rendered mark. Separate assertions preserve the existing original-note sequence,
+The regression extracts actual PDF text for footnotes with both note settings
+omitted, endnotes with only the note type set, and endnotes with chapter resets
+enabled. A fourth render uses the bundled compiled De Gruyter Brill small proof
+variant to check alternating chapter running heads because the default proof
+package uses plain pages. Each repeated call must match its original rendered
+mark. Separate assertions preserve the existing original-note sequence,
 chapter policy, note bodies and explicit hyperlink text. The test also rejects
 unresolved references and missing-glyph diagnostics, checks every numbered
 continuation row across at least three pages and its chapter running head,
@@ -178,3 +179,29 @@ churn, not live heap; process high-water RSS includes compilation and prior runs
 These limited local measurements do not establish normal Scripello latency or
 PDF correctness. A styled-link transformation keeps one additional full source
 context tree; its cost also depends on the rest of the document.
+
+## Standalone XHTML export regression
+
+Run with the transpect Calabash launcher and a dedicated scratch directory:
+
+```sh
+CATALOGS="$PWD/tests/xhtml-export-catalog.xml" \
+  /path/to/transpect/calabash/calabash.sh tests/xhtml-export.xpl \
+  scratch-dir-uri=file:///absolute/path/to/scratch
+```
+
+The catalog supplies stand-ins for external conversion and EPUB packaging. The
+fixture runs Xerif's HTML and TEI pipelines, serializes their public `html`
+outputs, and follows chapter and cover references from the publication directory.
+
+Run the report fixture with the same launcher and its default runtime catalogs:
+
+```sh
+/path/to/transpect/calabash/calabash.sh tests/xhtml-report.xpl \
+  scratch-dir-uri=file:///absolute/path/to/scratch
+```
+
+The fixture checks diagnostic matching, redaction of generated fallback locators,
+and preservation of diagnostic text and author-provided content. Run it again
+with a separate scratch directory and `source-dir-uri=https://editorial.example/private/book/`
+to exercise remote source locators.

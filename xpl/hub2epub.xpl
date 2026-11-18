@@ -70,6 +70,7 @@
   <p:import href="http://transpect.io/xproc-util/insert-srcpaths/xpl/insert-srcpaths.xpl"/>
   
   <p:import href="html2epub.xpl"/>
+  <p:import href="export-xhtml.xpl"/>
   
   <p:choose name="choose-output-xml">
     <p:when test="$output-xml eq 'tei'">
@@ -222,17 +223,17 @@
         <p:inline><c:result os-path="bogo"/></p:inline>
       </p:output>
       <p:output port="html">
-        <p:pipe port="result" step="identity-html"/>
+        <p:pipe port="result" step="export-xhtml"/>
       </p:output>
       <p:output port="report">
-        <p:pipe port="result" step="identity-html"/>
+        <p:pipe port="result" step="export-xhtml"/>
       </p:output>
       
-      <p:identity name="identity-html">
+      <tx:export-xhtml name="export-xhtml">
         <p:input port="source">
           <p:pipe port="html" step="choose-output-xml"/>
         </p:input>
-      </p:identity>
+      </tx:export-xhtml>
       
     </p:otherwise>  
   </p:choose>
