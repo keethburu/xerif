@@ -3376,77 +3376,20 @@
   <template context="dbk:link[@xlink:href != .][@xlink:href][matches(@xlink:href, '^(https?|ftp):') or matches(., '^(https?|ftp):')]|
                      dbk:link[matches(@xlink:href, 'mailto:|@')]">
     <!-- this only works if option 'collect-all-xsl' on xml2tex is set to yes. otherwise templates matching the same elements in different modes will not be considered -->
-    <xsl:call-template name="external-link-label"/>
-  </template>
-
-  <template name="external-link-label">
-    <xsl:param name="url-runs" as="xs:boolean" select="false()"/>
     <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
     <xsl:param name="toc-phrase-language" as="xs:string?" tunnel="yes"/>
     <xsl:variable name="active-toc-language"
                   select="if ($toc-heading-language)
                           then ($toc-phrase-language, xml2tex:lang-to-babel-lang($toc-heading-language))[1]
                           else ()"/>
-    <xsl:variable name="destination" select="if ($url-runs) then @xlink:href else (@url, @xlink:href)[1]"/>
     <rule name="href" type="cmd">
-      <param select="replace(xml2tex:optionally-encode-uri($destination), '(%|#|_|\\)', '\\$1' )"/>
-      <param>
-        <xsl:apply-templates select="if ($url-runs) then node()
-                                     else xml2tex:replace-recursive-linktext(node(), $active-toc-language)" mode="xml2tex">
-          <xsl:with-param name="url-runs" select="$url-runs" tunnel="yes"/>
-        </xsl:apply-templates>
-      </param>
+      <param select="replace(xml2tex:optionally-encode-uri((@url, @xlink:href)[1]), '(%|#|_|\\)', '\\$1' )"/>
+      <param select="xml2tex:replace-recursive-linktext(node(), $active-toc-language)"/>
     </rule>
   </template>
-
-  <xsl:template match="dbk:link//text()" mode="xml2tex" priority="100001">
-    <xsl:param name="url-runs" as="xs:boolean?" tunnel="yes"/>
-    <xsl:choose>
-      <xsl:when test="$url-runs">
-        <xsl:value-of select="concat('\nolinkurl{', ., '}')"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:next-match/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
   
   <!-- URLs where the URL matches the link text -->
   
-  <xsl:template match="dbk:link[@xlink:href = (replace(.,'\\([#%_])','$1'), replace(.,'\\',''))]
-                              [matches(@xlink:href, '^(https?|ftp):')]
-                              [.//dbk:phrase[@xml:lang]]"
-                mode="xml2tex" priority="999">
-    <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
-    <xsl:param name="toc-phrase-language" as="xs:string?" tunnel="yes"/>
-    <xsl:variable name="outer-language"
-                  select="if ($toc-heading-language)
-                          then ($toc-phrase-language, xml2tex:lang-to-babel-lang($toc-heading-language))[1]
-                          else ()"/>
-    <xsl:variable name="label-languages"
-                  select="if ($toc-heading-language)
-                          then distinct-values(for $text in .//text()[normalize-space()]
-                                               return xml2tex:toc-text-language($text, ., $outer-language))
-                          else ()"/>
-    <xsl:choose>
-      <xsl:when test="not($label-languages != $outer-language)">
-        <xsl:next-match/>
-      </xsl:when>
-      <xsl:when test="count($label-languages) eq 1
-                      and dbk:phrase[@role = 'Hyperlink']
-                      and @xlink:href = replace(.,'\\([#%_])','$1')">
-        <xsl:value-of select="concat('\foreignlanguage{', $label-languages, '}{')"/>
-        <xsl:next-match/>
-        <xsl:text>}</xsl:text>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:call-template name="external-link-label">
-          <xsl:with-param name="url-runs" select="true()"/>
-        </xsl:call-template>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
   <template context="dbk:link[@xlink:href = replace(.,'\\([#%_])','$1')]
                              [matches(@xlink:href, '^(https?|ftp):') or matches(., '^(https?|ftp):')]
                              [not(matches(@xlink:href, 'mailto:|@'))(:mail address:)]
