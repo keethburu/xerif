@@ -200,6 +200,7 @@ Run the report fixture with the same launcher and its default runtime catalogs:
   scratch-dir-uri=file:///absolute/path/to/scratch
 ```
 
-The fixture checks that the renderer attaches an absolute SVRL diagnostic to a
-paragraph with a relative source path and that the serialized report omits the
-private directory.
+The fixture checks that the renderer locates the diagnostic and that the
+serialized report keeps diagnostic text and usable locators without exposing the
+source directory. Run it again with a separate scratch directory and
+`source-dir-uri=https://editorial.example/private/book/` to exercise remote storage.

@@ -72,7 +72,8 @@
       <p:inline>
         <xsl:stylesheet version="2.0">
           <xsl:param name="source-dir-uri"/>
-          <xsl:variable name="directory" select="replace($source-dir-uri, '^file:/+', '/')"/>
+          <xsl:variable name="directory"
+            select="replace(replace($source-dir-uri, '^file:(///|/)([^/]|$)', '/$2', 'i'), '/+$', '')"/>
 
           <xsl:template match="@* | node()">
             <xsl:copy>
@@ -80,19 +81,14 @@
             </xsl:copy>
           </xsl:template>
 
-          <xsl:template match="html:span[tokenize(@class, '\s+') = 'BC_srcpath']/text()
-                               | html:p[tokenize(@class, '\s+') = 'BC_srcpath_msg']/@title">
-            <xsl:variable name="locator" select="replace(., '(^|\s)file:/+', '$1/')"/>
-            <xsl:variable name="redacted" select="
-              if (starts-with($directory, '/') and string-length($directory) gt 1 and contains($locator, $directory))
-              then concat(substring-before($locator, $directory), replace(substring-after($locator, $directory), '^/', ''))
-              else string(.)"/>
-            <xsl:choose>
-              <xsl:when test="self::attribute()">
-                <xsl:attribute name="title" select="$redacted"/>
-              </xsl:when>
-              <xsl:otherwise><xsl:value-of select="$redacted"/></xsl:otherwise>
-            </xsl:choose>
+          <xsl:template match="html:span[tokenize(@class, '\s+') = 'BC_srcpath']/text()">
+            <xsl:variable name="locator" select="replace(., '^file:(///|/)([^/]|$)', '/$2', 'i')"/>
+            <xsl:value-of select="
+              if ($directory = '') then .
+              else if (replace($locator, '/+$', '') = $directory) then ''
+              else if (starts-with($locator, concat($directory, '/')))
+              then substring($locator, string-length($directory) + 2)
+              else ."/>
           </xsl:template>
         </xsl:stylesheet>
       </p:inline>

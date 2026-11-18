@@ -10,7 +10,6 @@
   xmlns:xml2tex="http://transpect.io/xml2tex"
   xmlns:hub2htm="http://transpect.io/hub2htm"
   xmlns:dbk="http://docbook.org/ns/docbook"
-  xmlns:tei="http://www.tei-c.org/ns/1.0"
   xmlns:tx="http://transpect.io/xerif"
   version="1.0"
   name="main" 
@@ -468,9 +467,7 @@
       <p:pipe port="reports" step="validate"/>
     </p:input>
     <p:with-option name="source-dir-uri"
-      select="string((/*/dbk:info/dbk:keywordset[@role = 'hub']/dbk:keyword[@role = 'source-dir-uri'],
-                      /*/tei:teiHeader/tei:profileDesc/tei:textClass/tei:keywords[not(@rendition)]
-                        /tei:term[@key = 'source-dir-uri'])[normalize-space()][1])">
+      select="string((/*/dbk:info/dbk:keywordset[@role = 'hub']/dbk:keyword[@role = 'source-dir-uri'][normalize-space()])[1])">
       <p:pipe port="result" step="copy-images-and-patch-filerefs"/>
     </p:with-option>
     <p:with-option name="debug" select="$debug"/>
