@@ -84,6 +84,12 @@ body heading and for running heads and table-of-contents entries generated from
 that title or subtitle. If the converter has no mapping for the language code,
 the heading uses the surrounding language.
 
+In both standard and customer table-of-contents entries, a nonblank inline
+`phrase` with its own mapped `xml:lang` retains that language when it differs
+from the mapped language of the enclosing `title` or `subtitle`. This also
+applies inside styled superscripts, subscripts, and distinct link labels.
+Literal URL labels keep their existing URL rendering and language handling.
+
 ### Multiple input and output formats
 
 Supported input formats include:
