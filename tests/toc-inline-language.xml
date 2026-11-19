@@ -14,11 +14,14 @@
         <phrase xml:lang="de">Profil
           <link xlink:href="https://example.org/@profile/профиль"><phrase>https://example.org/@profile/профиль</phrase></link>
           Profilende</phrase>
+        <phrase xml:lang="de">Ulink
+          <ulink url="https://example.org/профиль">https://example.org/профиль</ulink>
+          Ulinkende</phrase>
         <link xlink:href="https://example.org/@team/contact"><phrase xml:lang="de" css:font-style="italic">Kontakt</phrase></link>
         <link xlink:href="https://example.org/~abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn/abschnitt"><phrase role="Hyperlink">https://example.org/~abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn/</phrase><phrase role="Hyperlink" xml:lang="de">abschnitt</phrase></link>
         <link linkend="target"><phrase xml:lang="de" css:font-weight="bold">Verweis</phrase></link>
         <superscript css:font-style="italic">A<phrase xml:lang="en-US">SameTop</phrase><phrase xml:lang="de"> </phrase>B</superscript>
-        <subscript css:font-weight="bold">A<phrase xml:lang="de">Tief</phrase>B</subscript>
+        <subscript css:font-weight="bold">A<phrase xml:lang="de">Tief</phrase><phrase xml:lang="fr"> </phrase>B</subscript>
         <br/> TitleEnd</title>
       <subtitle xml:lang="en">SubtitleStart <phrase xml:lang="de">Untertitelwort</phrase>
         <link xlink:href="https://example.org/@team/info"><phrase xml:lang="de">https://example.org/@team/info</phrase></link>
@@ -27,9 +30,12 @@
         <phrase xml:lang="de">Auswahl
           <link xlink:href="https://example.org/@selection/подбор"><phrase>https://example.org/@selection/подбор</phrase></link>
           Auswahlende</phrase>
+        <phrase xml:lang="de">Ulinkauswahl
+          <ulink url="https://example.org/подбор">https://example.org/подбор</ulink>
+          Ulinkauswahlende</phrase>
         <link xlink:href="mailto:info@example.org"><phrase xml:lang="de" css:font-weight="bold">Anfrage</phrase></link>
         <phrase role="testsub" css:font-style="italic">A<phrase xml:lang="en-US">SameBottom</phrase><phrase xml:lang="de"> </phrase>B</phrase>
-        <superscript css:font-style="italic" css:font-weight="bold">A<phrase xml:lang="de">Hoch</phrase>B</superscript>
+        <superscript css:font-style="italic" css:font-weight="bold">A<phrase xml:lang="de">Hoch</phrase><phrase xml:lang="fr"> </phrase>B</superscript>
         SubtitleEnd</subtitle>
     </info>
     <para><phrase xml:lang="ru">Тест</phrase> Verweisziel<anchor xml:id="target"/>. Note<anchor xml:id="note"/><footnote><para>Note text.</para></footnote>

@@ -58,6 +58,7 @@ def check_tex(tex: str, compatibility: str, route: str) -> None:
         r"\href{mailto:team@example.org}",
         r"\href{https://example.org/@query?",
         r"\href{https://example.org/@profile/",
+        r"\href{https://example.org/\%D0",
         rf"\url{{{LONG_URI}}}",
     ))
     require_fragments(title, (
@@ -66,7 +67,7 @@ def check_tex(tex: str, compatibility: str, route: str) -> None:
         r"\foreignlanguage{ngerman}{Profil",
         r"\foreignlanguage{ngerman}{{\textbf{Verweis}}}",
         r"\textsuperscript{\textit{ASameTop B}}",
-        r"\textsubscript{\textbf{A\foreignlanguage{ngerman}{Tief}B}}",
+        r"\textsubscript{\textbf{A\foreignlanguage{ngerman}{Tief} B}}",
     ))
     require_fragments(tex, (r"Note\hypertarget{ref-02}{}", r"\hyperlink{ref-02}{7}"))
     if route == "customer":
@@ -76,16 +77,17 @@ def check_tex(tex: str, compatibility: str, route: str) -> None:
             r"\href{mailto:info@example.org}{info@",
             r"\href{https://example.org/@subtitle?",
             r"\href{https://example.org/@selection/",
+            r"\href{https://example.org/\%D0",
         ))
         require_fragments(subtitle, (
             r"\foreignlanguage{ngerman}{Untertitelwort}",
             r"\href{mailto:info@example.org}{\foreignlanguage{ngerman}{\textbf{Anfrage}}}",
             r"\foreignlanguage{ngerman}{Auswahl",
             r"\textsubscript{\textit{ASameBottom B}}",
-            r"\textsuperscript{\textit{\textbf{A\foreignlanguage{ngerman}{Hoch}B}}}",
+            r"\textsuperscript{\textit{\textbf{A\foreignlanguage{ngerman}{Hoch} B}}}",
         ))
     else:
-        assert r"\tpTocSubtitle{\protect\foreignlanguage{english}{SubtitleStart" not in tex
+        assert r"\tpTocSubtitle" not in tex
 
 
 def main() -> None:

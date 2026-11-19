@@ -775,7 +775,9 @@
   </xsl:template>
 
   <xsl:template match="dbk:link[@xlink:href][ancestor::dbk:title or ancestor::dbk:subtitle]
-                               [. = ((@url, @xlink:href)[1], replace((@url, @xlink:href)[1], '^mailto:', '', 'i'))]"
+                               [. = ((@url, @xlink:href)[1], replace((@url, @xlink:href)[1], '^mailto:', '', 'i'))]
+                      |dbk:ulink[ancestor::dbk:title or ancestor::dbk:subtitle]
+                                [. = ((@xlink:href, @url)[1], replace((@xlink:href, @url)[1], '^mailto:', '', 'i'))]"
                 mode="escape-bad-chars">
     <xsl:copy>
       <xsl:attribute name="xml2tex:literal-link-label" select="true()"/>
@@ -2913,9 +2915,14 @@
   <!-- do not use \url because we have no styling, yet -->
   
   <template context="dbk:ulink">
+    <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
+    <xsl:param name="toc-phrase-language" as="xs:string?" tunnel="yes"/>
     <rule name="href" type="cmd">
       <param select="replace(xml2tex:optionally-encode-uri((@xlink:href, @url)[1]), '([%#])', '\\$1')"/>
-      <param/>
+      <param>
+        <with-param name="toc-heading-language" select="$toc-heading-language[not(current()/@xml2tex:literal-link-label)]" as="attribute(xml:lang)?" tunnel="yes"/>
+        <with-param name="toc-phrase-language" select="$toc-phrase-language[not(current()/@xml2tex:literal-link-label)]" as="xs:string?" tunnel="yes"/>
+      </param>
     </rule>
   </template>
 
@@ -3256,7 +3263,7 @@
     <xsl:param name="outer-language" as="xs:string"/>
     <xsl:variable name="phrase" select="$text/ancestor::dbk:phrase[ancestor::*[. is $container]]
                                        [@xml:lang][xml2tex:lang-to-babel-lang(@xml:lang)[normalize-space()]][1]"/>
-    <xsl:sequence select="(xml2tex:lang-to-babel-lang($phrase/@xml:lang)[normalize-space()], $outer-language)[1]"/>
+    <xsl:sequence select="(xml2tex:lang-to-babel-lang($phrase/@xml:lang)[normalize-space()][$text[normalize-space()]], $outer-language)[1]"/>
   </xsl:function>
 
   <xsl:template match="dbk:phrase[@xml:lang][normalize-space()]"
