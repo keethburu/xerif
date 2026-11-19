@@ -10,6 +10,10 @@
       <title xml:lang="en">TitleStart <phrase xml:lang="de">Titelwort</phrase>
         <link xlink:href="https://example.org/@team/profil">https://example.org/@team/<phrase><phrase xml:lang="de">profil</phrase></phrase></link>
         <link xlink:href="mailto:team@example.org"><phrase xml:lang="de">mailto:team</phrase>@example.org</link>
+        <link xlink:href="https://example.org/@query?a=1&amp;b=2">https://example.org/@<phrase xml:lang="de">query</phrase>?a=1&amp;b=2</link>
+        <phrase xml:lang="de">Profil
+          <link xlink:href="https://example.org/@profile/профиль"><phrase>https://example.org/@profile/профиль</phrase></link>
+          Profilende</phrase>
         <link xlink:href="https://example.org/@team/contact"><phrase xml:lang="de" css:font-style="italic">Kontakt</phrase></link>
         <link xlink:href="https://example.org/~abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn/abschnitt"><phrase role="Hyperlink">https://example.org/~abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn/</phrase><phrase role="Hyperlink" xml:lang="de">abschnitt</phrase></link>
         <link linkend="target"><phrase xml:lang="de" css:font-weight="bold">Verweis</phrase></link>
@@ -19,12 +23,16 @@
       <subtitle xml:lang="en">SubtitleStart <phrase xml:lang="de">Untertitelwort</phrase>
         <link xlink:href="https://example.org/@team/info"><phrase xml:lang="de">https://example.org/@team/info</phrase></link>
         <link xlink:href="mailto:info@example.org">info@<phrase xml:lang="de">example.org</phrase></link>
+        <link xlink:href="https://example.org/@subtitle?a=1&amp;b=2">https://example.org/@<phrase xml:lang="de">subtitle</phrase>?a=1&amp;b=2</link>
+        <phrase xml:lang="de">Auswahl
+          <link xlink:href="https://example.org/@selection/подбор"><phrase>https://example.org/@selection/подбор</phrase></link>
+          Auswahlende</phrase>
         <link xlink:href="mailto:info@example.org"><phrase xml:lang="de" css:font-weight="bold">Anfrage</phrase></link>
         <phrase role="testsub" css:font-style="italic">A<phrase xml:lang="en-US">SameBottom</phrase><phrase xml:lang="de"> </phrase>B</phrase>
         <superscript css:font-style="italic" css:font-weight="bold">A<phrase xml:lang="de">Hoch</phrase>B</superscript>
         SubtitleEnd</subtitle>
     </info>
-    <para>Verweisziel<anchor xml:id="target"/>. Note<anchor xml:id="note"/><footnote><para>Note text.</para></footnote>
+    <para><phrase xml:lang="ru">Тест</phrase> Verweisziel<anchor xml:id="target"/>. Note<anchor xml:id="note"/><footnote><para>Note text.</para></footnote>
       Reuse[<link linkend="note">7</link>].</para>
   </chapter>
 </hub>

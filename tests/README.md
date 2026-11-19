@@ -74,20 +74,29 @@ correctness.
 ## TOC inline language
 
 `toc-inline-language.py` renders the synthetic `toc-inline-language.xml` in
-the pinned Scripello worker. It checks the emitted TeX for literal and distinct
-link labels, styled script runs, and note references. Run it with the current
-mapping mounted read-only. Set `SCRIPPELLO_HEAVY_LOCK` to the shared Scripello
-rendering lock before running the commands.
+the pinned Scripello worker. It compares literal labels and their break markers
+with the compatibility mapping installed in that image, and checks the emitted
+TeX for distinct link labels, styled script runs, and note references. Set
+`SCRIPPELLO_HEAVY_LOCK` to the shared Scripello rendering lock before running the
+commands.
 
 ```sh
-image=sha256:d19587429905c905c0fd8aa5b53d2a542a005ead00b30c14ee406e9de3514bc0
-output=$(mktemp -d "$PWD/.toc-language.XXXXXX")
-chmod a+rx "$output"
-for route in standard customer; do
-  flock -w 60 "$SCRIPPELLO_HEAVY_LOCK" timeout 100 docker run --rm --pull never \
-    --network none --cpus 3 --memory 4g \
-    -v "$PWD/tests:/tests:ro" -v "$output:/output" \
-    -v "$PWD/xml2tex/latex.conf.xml:/opt/transpect/a9s/common/xml2tex/latex.conf.xml:ro" \
-    --entrypoint /opt/venv/bin/python "$image" -B /tests/toc-inline-language.py "/output/$route" "$route"
-done
+(
+  set -eu
+  image=sha256:d19587429905c905c0fd8aa5b53d2a542a005ead00b30c14ee406e9de3514bc0
+  output=$(mktemp -d "$PWD/.toc-language.XXXXXX")
+  chmod a+rx "$output"
+  run() {
+    flock -w 60 "$SCRIPPELLO_HEAVY_LOCK" timeout 100 docker run --rm --pull never \
+      --network none --cpus 3 --memory 4g \
+      -v "$PWD/tests:/tests:ro" -v "$output:/output" \
+      --entrypoint /opt/venv/bin/python "$@"
+  }
+  for route in standard customer; do
+    run "$image" -B /tests/toc-inline-language.py "/output/base-$route" "$route" --compatibility-base
+    run -v "$PWD/xml2tex/latex.conf.xml:/opt/transpect/a9s/common/xml2tex/latex.conf.xml:ro" \
+      "$image" -B /tests/toc-inline-language.py "/output/$route" "$route" \
+      --compatibility-tex "/output/base-$route/render/xml2tex.tex"
+  done
+)
 ```

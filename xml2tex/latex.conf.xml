@@ -773,6 +773,15 @@
                           then $content
                           else replace($content, '/(\p{Lu})', '{\\slash}$1')"/>
   </xsl:template>
+
+  <xsl:template match="dbk:link[@xlink:href][ancestor::dbk:title or ancestor::dbk:subtitle]
+                               [. = ((@url, @xlink:href)[1], replace((@url, @xlink:href)[1], '^mailto:', '', 'i'))]"
+                mode="escape-bad-chars">
+    <xsl:copy>
+      <xsl:attribute name="xml2tex:literal-link-label" select="true()"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
   
   <template context="/dbk:*/dbk:colophon[@role = 'dedication']
                     |/dbk:*/dbk:dedication
@@ -3379,9 +3388,8 @@
     <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
     <xsl:param name="toc-phrase-language" as="xs:string?" tunnel="yes"/>
     <xsl:variable name="destination" select="(@url, @xlink:href)[1]"/>
-    <xsl:variable name="label" select="replace(., '\\([#%_])', '$1')"/>
     <xsl:variable name="label-heading-language"
-                  select="$toc-heading-language[not($label = ($destination, replace($destination, '^mailto:', '', 'i')))]"/>
+                  select="if (@xml2tex:literal-link-label) then () else $toc-heading-language"/>
     <xsl:variable name="active-toc-language"
                   select="if ($label-heading-language)
                           then ($toc-phrase-language, xml2tex:lang-to-babel-lang($label-heading-language))[1]
@@ -3390,6 +3398,7 @@
       <param select="replace(xml2tex:optionally-encode-uri($destination), '(%|#|_|\\)', '\\$1' )"/>
       <param select="xml2tex:replace-recursive-linktext(node(), $active-toc-language)">
         <with-param name="toc-heading-language" select="$label-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
+        <with-param name="toc-phrase-language" select="$toc-phrase-language[$label-heading-language]" as="xs:string?" tunnel="yes"/>
       </param>
     </rule>
   </template>
