@@ -16,7 +16,7 @@ supports a before-fix negative control.
 
 Pushes to `scripello/heading-context` and pull requests targeting it run these
 cases in the five-minute **Heading context regression** CI job. It pins Python,
-the two Python wheels, action revisions, and both downloaded mapping inputs;
+the two Python wheels, action revisions, and the downloaded mapping inputs;
 wheel and mapping SHA-256 checks reject changed dependencies. The installed
 baseline is also required to fail the independent heading output assertions,
 so an import or download error cannot satisfy the negative control.
@@ -122,8 +122,9 @@ paragraph and blockquote note bodies, semantic and empty references, literal
 numeric/Roman/superscript/mixed-prose links, and ambiguity diagnostics. Both
 `notes-per-chapter` settings must pass; filtered heading destinations omit the
 note and its label. `--config` accepts an earlier mapping for a negative control.
-This regression runs in the existing Heading context CI job. It does not test
-the complete XML2TeX generator, TeX counters, chapter resets, or PDF output.
+The existing Heading context CI job runs this regression and requires the pinned
+pre-port mapping to fail its rendered-body label assertion. This regression does
+not test the complete XML2TeX generator, TeX counters, chapter resets, or PDF output.
 
 Run `note-reference-render.sh` with Docker and `XERIF_TEST_IMAGE` set to an
 immutable Scripello check image digest containing the real transpect/CoCoTeX/
