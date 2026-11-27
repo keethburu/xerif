@@ -39,8 +39,10 @@ jobs:
         run: |
           curl --fail --location --retry 2 --max-time 30 https://raw.githubusercontent.com/transpect/docx2tex/6e1ffe7d259888f47ab3f311edc24b2e4c69147b/conf/conf.xml -o "$RUNNER_TEMP/docx2tex-conf.xml"
           curl --fail --location --retry 2 --max-time 30 https://raw.githubusercontent.com/keethburu/xerif/1b66ab8984fc3a1e9eee942912d3cf040fbad515/xml2tex/latex.conf.xml -o "$RUNNER_TEMP/heading-baseline.xml"
+          curl --fail --location --retry 2 --max-time 30 https://raw.githubusercontent.com/keethburu/xerif/054af5c180ec5c002abc5456f89ede86792178ee/xml2tex/latex.conf.xml -o "$RUNNER_TEMP/notes-baseline.xml"
           printf '%s  %s\n' dee9e30f77fd71e473494cf3958b14f2e2d6f652bbc76e3384e7d74738f7c1e9 "$RUNNER_TEMP/docx2tex-conf.xml" | sha256sum --check -
           printf '%s  %s\n' 283e0f2a6ba4be592f8c531b19860f0575d884cd4c40cbf097b1ba6f9275f947 "$RUNNER_TEMP/heading-baseline.xml" | sha256sum --check -
+          printf '%s  %s\n' 63e30d2555dfcf60c0f35c47342858ece0fce4fa256c56e62a764159d1947a3c "$RUNNER_TEMP/notes-baseline.xml" | sha256sum --check -
       - name: Validate mapping with installed XML2TeX schema
         shell: bash
         run: |
@@ -50,6 +52,23 @@ jobs:
           python -B tests/heading-config-schema.py --schema "$RUNNER_TEMP/xml2tex.rng" --landed-config "$RUNNER_TEMP/heading-landed.xml"
       - name: Run heading regression
         run: python -B tests/heading-style-context.py --docx2tex-conf "$RUNNER_TEMP/docx2tex-conf.xml"
+      - name: Run note reference mapping regression
+        run: python -B tests/note-reference-mapping.py --docx2tex-conf "$RUNNER_TEMP/docx2tex-conf.xml"
+      - name: Require notes baseline to fail its rendered-body label assertion
+        shell: bash
+        run: |
+          if python -B tests/note-reference-mapping.py --docx2tex-conf "$RUNNER_TEMP/docx2tex-conf.xml" --config "$RUNNER_TEMP/notes-baseline.xml" > "$RUNNER_TEMP/notes-negative.log" 2>&1; then
+            cat "$RUNNER_TEMP/notes-negative.log"
+            echo 'Notes baseline unexpectedly passed.' >&2
+            exit 1
+          fi
+          cat "$RUNNER_TEMP/notes-negative.log"
+          python - "$RUNNER_TEMP/notes-negative.log" <<'PY'
+          from pathlib import Path
+          import sys
+          log = Path(sys.argv[1]).read_text()
+          assert 'AssertionError:' in log and 'rendered-body label missing' in log, log
+          PY
       - name: Require installed-baseline negative control to fail its output assertions
         shell: bash
         run: |
