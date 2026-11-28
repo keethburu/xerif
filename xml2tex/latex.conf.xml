@@ -1582,8 +1582,7 @@
   <template context="dbk:footnote/dbk:para">
      <xsl:next-match/>
     <xsl:if test="exists(following-sibling::dbk:para)">
-     <!-- Delay the paragraph token until after non-long hyperlink argument parsing. -->
-     <xsl:text>\endgraf&#xa;</xsl:text>
+     <xsl:text>&#xa;</xsl:text>
     </xsl:if>
   </template>
   
@@ -2948,7 +2947,7 @@
       <param>
         <with-param name="toc-heading-language" select="$toc-heading-language[not(current()/@xml2tex:literal-link-label)]" as="attribute(xml:lang)?" tunnel="yes"/>
         <with-param name="toc-phrase-language" select="$toc-phrase-language[not(current()/@xml2tex:literal-link-label)]" as="xs:string?" tunnel="yes"/>
-        <with-param name="suppress-foreign-lang" select="if (@xml2tex:literal-link-label) then false() else $suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
+        <with-param name="suppress-foreign-lang" select="if (@xml2tex:literal-link-label and ($toc-phrase-language or ancestor::dbk:phrase[@xml:lang])) then false() else $suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
       </param>
     </rule>
   </template>
@@ -3433,12 +3432,14 @@
                   select="if ($label-heading-language)
                           then ($toc-phrase-language, xml2tex:lang-to-babel-lang($label-heading-language))[1]
                           else ()"/>
+    <!-- Leave native TOC suppression intact for literal labels, but release
+         suppression from an enclosing language phrase at the label boundary. -->
     <rule name="href" type="cmd">
       <param select="replace(xml2tex:optionally-encode-uri($destination), '(%|#|_|\\)', '\\$1' )"/>
       <param select="xml2tex:replace-recursive-linktext(node(), $active-toc-language)">
         <with-param name="toc-heading-language" select="$label-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
         <with-param name="toc-phrase-language" select="$toc-phrase-language[$label-heading-language]" as="xs:string?" tunnel="yes"/>
-        <with-param name="suppress-foreign-lang" select="if (@xml2tex:literal-link-label) then false() else $suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
+        <with-param name="suppress-foreign-lang" select="if (@xml2tex:literal-link-label and ($toc-phrase-language or ancestor::dbk:phrase[@xml:lang])) then false() else $suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
       </param>
     </rule>
   </template>

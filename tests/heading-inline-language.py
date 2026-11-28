@@ -123,6 +123,14 @@ def boundary_cases():
            '<phrase xml:lang="de">Vor<ulink url="https://example.org/profile">'
            '<phrase xml:lang="en" css:font-style="italic">Label</phrase></ulink>' + tail,
            expected, expected)
+    # Even a phrase matching the heading introduces suppression; a literal
+    # label must release that scope before applying its nested override.
+    expected = (r'Vor\href{https://example.org/@team/profile}'
+                r'{\textit{\foreignlanguage{ngerman}{https://example.org/@team/profile}}}End')
+    yield ('same-language-literal',
+           '<phrase xml:lang="en">Vor<link xlink:href="https://example.org/@team/profile">'
+           '<phrase css:font-style="italic"><phrase xml:lang="de">https://example.org/@team/profile'
+           '</phrase></phrase></link>End</phrase>', expected, expected)
     yield from copied_note_cases()
 
 
@@ -136,7 +144,7 @@ def copied_note_cases():
     for target in ('http://example.org', 'https://example.org', 'ftp://example.org', 'mailto:info@example.org'):
         for multiple in (False, True):
             extra = '<para xml:lang="de">Zweit <phrase xml:lang="en">Second</phrase></para>' if multiple else ''
-            rendered_extra = '\\endgraf\nZweit \\foreignlanguage{english}{Second}' if multiple else ''
+            rendered_extra = '\nZweit \\foreignlanguage{english}{Second}' if multiple else ''
             italic = r'{\itshape ' if multiple else r'\textit{'
             content = (f'<link xlink:href="{target}"><phrase css:font-style="italic">Label'
                        + note % extra + after + '</phrase></link>' + after)
@@ -239,6 +247,33 @@ def main():
                     failures.append(f'{name}/{case}\nexpected: {expected!r}\nactual: {actual!r}')
                 else:
                     print(f'PASS {name}/{case}')
+        # Compatibility oracle: the native TOC contract (also checked by the
+        # real renderer) leaves literal labels unchanged. An enclosing phrase
+        # scope is tested separately above; it must still release suppression.
+        for element, target in (('link', 'https://example.org/@team/profil'),
+                                ('link', 'ftp://example.org/@team/profil'),
+                                ('link', 'mailto:team@example.org'),
+                                ('ulink', 'https://example.org/@team/profil')):
+            label = target.removeprefix('mailto:')
+            prefix, suffix = label.rsplit('/' if '/' in label else '@', 1)
+            separator = '/' if '/' in label else '@'
+            attribute = 'xlink:href' if element == 'link' else 'url'
+            content = (f'<{element} {attribute}="{target}">{prefix}{separator}'
+                       f'<phrase><phrase xml:lang="de">{suffix}</phrase></phrase></{element}>')
+            xml = ('<hub xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" '
+                   'xml:lang="de"><chapter><info>'
+                   f'<title xml:lang="en">{content}</title><subtitle xml:lang="en">{content}</subtitle>'
+                   '</info></chapter></hub>')
+            source.write_text(escape.transform_to_string(xdm_node=processor.parse_xml(xml_text=xml)))
+            for destination in destinations:
+                name, _, _ = destination
+                if 'toc' not in name:
+                    continue
+                actual = render(processor, sheet, config, destination, source)
+                expected = (r'{\protect\foreignlanguage{english}{\href{'
+                            + target + '}{' + label + '}}}')
+                assert actual == expected, f'{name}/native-literal/{element}/{target}\nexpected: {expected!r}\nactual: {actual!r}'
+                print(f'PASS {name}/native-literal/{element}/{target}')
     assert not failures, '\n\n'.join(failures)
 
 
