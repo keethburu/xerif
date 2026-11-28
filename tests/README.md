@@ -73,12 +73,43 @@ correctness.
 
 ## TOC inline language
 
+Run the bounded styled-language regression with the same pinned dependencies
+and inherited mapping as the heading suite:
+
+```sh
+python3 -B tests/heading-inline-language.py --docx2tex-conf /absolute/path/to/docx2tex/conf/conf.xml
+```
+
+It executes the actual body and running title/subtitle parameter selectors,
+both TOC selectors, phrase-language handlers, inherited bold/italic wrappers,
+and copied external-link label handlers. Independent expected output requires
+German styled labels inside mapped English headings, including the `en-US`
+alias. Unmapped Latvian and untagged headings retain their previous output;
+an unmapped inline phrase does not add a language scope. Short ASCII labels
+use identity stand-ins for tactical link breaking; language lookup is bounded
+to the pinned converter's English/German results. This is a mapping-level test,
+not a Python runtime converter or proof of complete generated TeX/PDF behavior.
+CI runs it and requires the pinned pre-fix `054af5c` mapping to fail specifically
+at its body language output assertion. `--config` also accepts other negative
+control mappings.
+
 `toc-inline-language.py` renders the synthetic `toc-inline-language.xml` in
-the pinned Scripello worker. It compares literal labels and their break markers
+the pinned Scripello worker. It now checks explicit German styled link labels
+inside English body and running titles/subtitles as well as both TOC routes,
+including nested script language scopes in the body. It compares literal labels and their break markers
 with the compatibility mapping installed in that image, and checks the emitted
 TeX for distinct link labels, styled script runs, and note references. Set
 `SCRIPPELLO_HEAVY_LOCK` to the shared Scripello rendering lock before running the
 commands.
+
+The overlay command below is a development mapping check. Source acceptance
+requires a separately cleared render under the real shared lock using complete,
+matching immutable source/image inputs, with no mapping overlay or build-time
+source patch. Record the installed mapping hash and all source identities.
+Observe actual shipped PDF glyph languages independently: generated TeX alone
+does not prove visible subtitle output or PDF accessibility. The default layout
+shows body subtitles but omits TOC subtitles; publisher layouts may omit body
+subtitles. Keep those visibility limits explicit.
 
 ```sh
 (

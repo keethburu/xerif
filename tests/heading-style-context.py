@@ -21,8 +21,8 @@ NS = {"xsl": XSL, "c": CONF}
 INHERITED_SHA256 = "dee9e30f77fd71e473494cf3958b14f2e2d6f652bbc76e3384e7d74738f7c1e9"
 
 
-def xsl(name, **attributes):
-    return E.Element(f"{{{XSL}}}{name}", **attributes)
+def xsl(local_name, **attributes):
+    return E.Element(f"{{{XSL}}}{local_name}", **attributes)
 
 
 def compile_fragment(node):
