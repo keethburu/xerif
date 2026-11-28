@@ -50,6 +50,29 @@ jobs:
           curl --fail --location --retry 2 --max-time 30 https://raw.githubusercontent.com/transpect/xml2tex/9d50c5185ed811cd3e9f2b946a5b720fd750b46a/schema/xslt2.rng -o "$RUNNER_TEMP/xslt2.rng"
           curl --fail --location --retry 2 --max-time 30 https://raw.githubusercontent.com/keethburu/xerif/3c2e95780c046105ed5c7aac4737e8c110c379d0/xml2tex/latex.conf.xml -o "$RUNNER_TEMP/heading-landed.xml"
           python -B tests/heading-config-schema.py --schema "$RUNNER_TEMP/xml2tex.rng" --landed-config "$RUNNER_TEMP/heading-landed.xml"
+      - name: Run chapter language transition regression
+        shell: bash
+        run: |
+          curl --fail --location --retry 2 --max-time 30 https://raw.githubusercontent.com/transpect/xml2tex/9d50c5185ed811cd3e9f2b946a5b720fd750b46a/xsl/functions.xsl -o "$RUNNER_TEMP/xml2tex-functions.xsl"
+          curl --fail --location --retry 2 --max-time 30 https://raw.githubusercontent.com/keethburu/xerif/5a73cda7ec734fd08c91cd604e8ff72953ce6d60/xml2tex/latex.conf.xml -o "$RUNNER_TEMP/chapter-baseline.xml"
+          printf '%s  %s\n' 2ce5c2751776548e6951848aa64a7e335eabef6eb36226f255dc042b04847b58 "$RUNNER_TEMP/chapter-baseline.xml" | sha256sum --check -
+          python -B tests/chapter-language-transition.py --docx2tex-conf "$RUNNER_TEMP/docx2tex-conf.xml" --xml2tex-functions "$RUNNER_TEMP/xml2tex-functions.xsl" --existing-ci-saxonche --output "$RUNNER_TEMP/chapter-after"
+          if python -B tests/chapter-language-transition.py --docx2tex-conf "$RUNNER_TEMP/docx2tex-conf.xml" --xml2tex-functions "$RUNNER_TEMP/xml2tex-functions.xsl" --existing-ci-saxonche --config "$RUNNER_TEMP/chapter-baseline.xml" --output "$RUNNER_TEMP/chapter-before" > "$RUNNER_TEMP/chapter-negative.log" 2>&1; then
+            cat "$RUNNER_TEMP/chapter-negative.log"
+            echo 'Chapter baseline unexpectedly passed.' >&2
+            exit 1
+          fi
+          cat "$RUNNER_TEMP/chapter-negative.log"
+          python - "$RUNNER_TEMP/chapter-negative.log" <<'PY'
+          from pathlib import Path
+          import sys
+          log = Path(sys.argv[1]).read_text()
+          assert 'AssertionError: chapter language selection' in log, log
+          for route in ('standard', 'customer'):
+              assert f"{route}/english-latvian-untagged/C1Body: expected ['ngerman'], actual ['english']" in log, log
+              for control in ('english-untagged', 'english-root', 'english-french-untagged', 'english-last', 'latvian-first', 'latvian-english', 'english-root-mask', 'same-mapped'):
+                  assert f'PASS {route}/{control}\n' in log, log
+          PY
       - name: Run heading regression
         run: python -B tests/heading-style-context.py --docx2tex-conf "$RUNNER_TEMP/docx2tex-conf.xml"
       - name: Run note reference mapping regression

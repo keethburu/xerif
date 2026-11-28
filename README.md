@@ -87,6 +87,16 @@ body heading and for running heads and table-of-contents entries generated from
 that title or subtitle. If the converter has no mapping for the language code,
 the heading uses the surrounding language.
 
+At top-level chapter boundaries, a chapter with an unmapped language code does
+not inherit the previous foreign chapter's Babel selection. The previous mapped
+chapter restores the book's root language, just as it does before an untagged
+chapter or a chapter explicitly using the root language. This also prevents the
+selection from leaking into later untagged content. An unmapped code does not
+become a supported Babel language through this fallback.
+
+These language selections govern TeX typesetting. They do not establish PDF
+language tagging, PDF/UA conformance, or accessibility acceptance.
+
 In both standard and customer table-of-contents entries, a nonblank inline
 `phrase` with its own mapped `xml:lang` retains that language when it differs
 from the mapped language of the enclosing `title` or `subtitle`. This also

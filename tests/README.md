@@ -71,6 +71,53 @@ pipeline or PDF output. Full rendering additionally requires the complete
 transpect/CoCoTeX/LuaLaTeX pipeline; XML/XSLT-only results do not establish PDF
 correctness.
 
+## Chapter language transitions
+
+`chapter-language-transition.xml` contains original CC0-1.0 synthetic fixtures.
+`chapter-language-transition.py` executes the actual chapter selection/restoration
+handler, title/subtitle handlers, running-head handlers, both TOC branches, and
+mapped inline phrase wrappers. Like the heading runner above, it lowers only the
+required mapping command/parameter subset; the root preamble and ordinary body
+traversal are bounded stand-ins. It uses the real converter language function
+from XML2TeX commit `9d50c5185ed811cd3e9f2b946a5b720fd750b46a`, file
+`xsl/functions.xsl`, with SHA-256
+`cc0e04208ac5c06618019df055375e7052b608db07ffc3274d0001dd6cc13745`.
+It uses the same checksum-pinned inherited Docx2TeX mapping as the heading suite.
+
+For native HE proof use Java 17, lxml 5.2.1, and the normally source-built
+Cartavelio Saxon HE 12.10 JAR from commit
+`95d1c544b435ab49cbc2ab4e175a8af22551e2d3`, SHA-256
+`242956b0d00bcb5c083f463a07f400c76c47b58814118118566edb65069f1764`,
+plus its XML Resolver dependency. The runner rejects a different engine JAR.
+Point the arguments at verified local tooling; it downloads and installs nothing.
+
+```sh
+python3 -B tests/chapter-language-transition.py \
+  --docx2tex-conf "$DOCX2TEX_CONF" --xml2tex-functions "$XML2TEX_FUNCTIONS" \
+  --saxon-jar "$SAXON_JAR" --resolver-jar "$RESOLVER_JAR" --output "$OUTPUT"
+```
+
+The output directory retains the exact fixtures, lowered stylesheets and emitted
+TeX. `--config` selects an earlier mapping for the negative control. The CI job
+also runs the suite with its existing pinned SaxonC 12.9.0 dependency via
+`--existing-ci-saxonche`, and requires the maintained pre-fix mapping at
+`5a73cda7ec734fd08c91cd604e8ff72953ce6d60` to fail the English-to-Latvian
+body assertion while the disconfirming mapped/untagged/root/last controls pass.
+This CI cross-check is separate from the native HE proof.
+
+Hand-authored expected languages check every emitted title/subtitle occurrence
+and adjacent body marker, plus restoration after the final chapter. The 15 cases
+cover English-to-Latvian-to-untagged, mapped French switches, explicit root and
+absent chapter languages, a blank language, consecutive unmapped chapters,
+reordered controls, an English-root mask, a French root, repeated mapped
+chapters, and mapped heading/inline overrides after an unmapped chapter. Both
+TOC routes run; the standard route uses its existing body-subtitle fallback.
+The language-scope interpreter checks the generated TeX interface only. It
+cannot establish actual shipped glyph language IDs, delayed running-head/TOC
+execution, PDF language tags, PDF/UA, or installed-consumer acceptance. Those
+require coordinated full-generator and native rendering tests with the exact
+installed mapping and immutable consumer image, without source overlays.
+
 ## TOC inline language
 
 `toc-inline-language.py` renders the synthetic `toc-inline-language.xml` in

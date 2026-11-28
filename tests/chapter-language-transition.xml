@@ -1,0 +1,554 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<cases>
+  <!--Original synthetic CC0-1.0 fixtures. Expected languages use supported root/mapping semantics; lv remains unmapped.-->
+  <case name="english-latvian-untagged">
+    <hub xmlns="http://docbook.org/ns/docbook" xml:lang="de">
+      <info>
+        <title>Chapter language transition controls</title>
+      </info>
+      <chapter xml:lang="en">
+        <info>
+          <title xml:lang="en">C0Title<br/>
+          </title>
+          <subtitle xml:lang="en">C0Subtitle</subtitle>
+        </info>
+        <para>C0Body</para>
+      </chapter>
+      <chapter xml:lang="lv">
+        <info>
+          <title xml:lang="lv">C1Title<br/>
+          </title>
+          <subtitle xml:lang="lv">C1Subtitle</subtitle>
+        </info>
+        <para>C1Body</para>
+      </chapter>
+      <chapter>
+        <info>
+          <title>C2Title<br/>
+          </title>
+          <subtitle>C2Subtitle</subtitle>
+        </info>
+        <para>C2Body</para>
+      </chapter>
+    </hub>
+    <expect marker="C0Title" language="english" standard="3" customer="3"/>
+    <expect marker="C0Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C0Body" language="english"/>
+    <expect marker="C1Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C1Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C1Body" language="ngerman"/>
+    <expect marker="C2Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C2Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C2Body" language="ngerman"/>
+    <expect marker="AfterCase" language="ngerman"/>
+  </case>
+  <case name="english-untagged">
+    <hub xmlns="http://docbook.org/ns/docbook" xml:lang="de">
+      <info>
+        <title>Chapter language transition controls</title>
+      </info>
+      <chapter xml:lang="en">
+        <info>
+          <title xml:lang="en">C0Title<br/>
+          </title>
+          <subtitle xml:lang="en">C0Subtitle</subtitle>
+        </info>
+        <para>C0Body</para>
+      </chapter>
+      <chapter>
+        <info>
+          <title>C1Title<br/>
+          </title>
+          <subtitle>C1Subtitle</subtitle>
+        </info>
+        <para>C1Body</para>
+      </chapter>
+    </hub>
+    <expect marker="C0Title" language="english" standard="3" customer="3"/>
+    <expect marker="C0Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C0Body" language="english"/>
+    <expect marker="C1Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C1Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C1Body" language="ngerman"/>
+    <expect marker="AfterCase" language="ngerman"/>
+  </case>
+  <case name="english-root">
+    <hub xmlns="http://docbook.org/ns/docbook" xml:lang="de">
+      <info>
+        <title>Chapter language transition controls</title>
+      </info>
+      <chapter xml:lang="en">
+        <info>
+          <title xml:lang="en">C0Title<br/>
+          </title>
+          <subtitle xml:lang="en">C0Subtitle</subtitle>
+        </info>
+        <para>C0Body</para>
+      </chapter>
+      <chapter xml:lang="de">
+        <info>
+          <title xml:lang="de">C1Title<br/>
+          </title>
+          <subtitle xml:lang="de">C1Subtitle</subtitle>
+        </info>
+        <para>C1Body</para>
+      </chapter>
+    </hub>
+    <expect marker="C0Title" language="english" standard="3" customer="3"/>
+    <expect marker="C0Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C0Body" language="english"/>
+    <expect marker="C1Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C1Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C1Body" language="ngerman"/>
+    <expect marker="AfterCase" language="ngerman"/>
+  </case>
+  <case name="english-french-untagged">
+    <hub xmlns="http://docbook.org/ns/docbook" xml:lang="de">
+      <info>
+        <title>Chapter language transition controls</title>
+      </info>
+      <chapter xml:lang="en">
+        <info>
+          <title xml:lang="en">C0Title<br/>
+          </title>
+          <subtitle xml:lang="en">C0Subtitle</subtitle>
+        </info>
+        <para>C0Body</para>
+      </chapter>
+      <chapter xml:lang="fr">
+        <info>
+          <title xml:lang="fr">C1Title<br/>
+          </title>
+          <subtitle xml:lang="fr">C1Subtitle</subtitle>
+        </info>
+        <para>C1Body</para>
+      </chapter>
+      <chapter>
+        <info>
+          <title>C2Title<br/>
+          </title>
+          <subtitle>C2Subtitle</subtitle>
+        </info>
+        <para>C2Body</para>
+      </chapter>
+    </hub>
+    <expect marker="C0Title" language="english" standard="3" customer="3"/>
+    <expect marker="C0Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C0Body" language="english"/>
+    <expect marker="C1Title" language="french" standard="3" customer="3"/>
+    <expect marker="C1Subtitle" language="french" standard="2" customer="3"/>
+    <expect marker="C1Body" language="french"/>
+    <expect marker="C2Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C2Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C2Body" language="ngerman"/>
+    <expect marker="AfterCase" language="ngerman"/>
+  </case>
+  <case name="english-last">
+    <hub xmlns="http://docbook.org/ns/docbook" xml:lang="de">
+      <info>
+        <title>Chapter language transition controls</title>
+      </info>
+      <chapter xml:lang="en">
+        <info>
+          <title xml:lang="en">C0Title<br/>
+          </title>
+          <subtitle xml:lang="en">C0Subtitle</subtitle>
+        </info>
+        <para>C0Body</para>
+      </chapter>
+    </hub>
+    <expect marker="C0Title" language="english" standard="3" customer="3"/>
+    <expect marker="C0Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C0Body" language="english"/>
+    <expect marker="AfterCase" language="ngerman"/>
+  </case>
+  <case name="latvian-first">
+    <hub xmlns="http://docbook.org/ns/docbook" xml:lang="de">
+      <info>
+        <title>Chapter language transition controls</title>
+      </info>
+      <chapter xml:lang="lv">
+        <info>
+          <title xml:lang="lv">C0Title<br/>
+          </title>
+          <subtitle xml:lang="lv">C0Subtitle</subtitle>
+        </info>
+        <para>C0Body</para>
+      </chapter>
+      <chapter>
+        <info>
+          <title>C1Title<br/>
+          </title>
+          <subtitle>C1Subtitle</subtitle>
+        </info>
+        <para>C1Body</para>
+      </chapter>
+    </hub>
+    <expect marker="C0Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C0Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C0Body" language="ngerman"/>
+    <expect marker="C1Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C1Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C1Body" language="ngerman"/>
+    <expect marker="AfterCase" language="ngerman"/>
+  </case>
+  <case name="latvian-english">
+    <hub xmlns="http://docbook.org/ns/docbook" xml:lang="de">
+      <info>
+        <title>Chapter language transition controls</title>
+      </info>
+      <chapter xml:lang="lv">
+        <info>
+          <title xml:lang="lv">C0Title<br/>
+          </title>
+          <subtitle xml:lang="lv">C0Subtitle</subtitle>
+        </info>
+        <para>C0Body</para>
+      </chapter>
+      <chapter xml:lang="en">
+        <info>
+          <title xml:lang="en">C1Title<br/>
+          </title>
+          <subtitle xml:lang="en">C1Subtitle</subtitle>
+        </info>
+        <para>C1Body</para>
+      </chapter>
+    </hub>
+    <expect marker="C0Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C0Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C0Body" language="ngerman"/>
+    <expect marker="C1Title" language="english" standard="3" customer="3"/>
+    <expect marker="C1Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C1Body" language="english"/>
+    <expect marker="AfterCase" language="ngerman"/>
+  </case>
+  <case name="french-latvian">
+    <hub xmlns="http://docbook.org/ns/docbook" xml:lang="de">
+      <info>
+        <title>Chapter language transition controls</title>
+      </info>
+      <chapter xml:lang="fr">
+        <info>
+          <title xml:lang="fr">C0Title<br/>
+          </title>
+          <subtitle xml:lang="fr">C0Subtitle</subtitle>
+        </info>
+        <para>C0Body</para>
+      </chapter>
+      <chapter xml:lang="lv">
+        <info>
+          <title xml:lang="lv">C1Title<br/>
+          </title>
+          <subtitle xml:lang="lv">C1Subtitle</subtitle>
+        </info>
+        <para>C1Body</para>
+      </chapter>
+    </hub>
+    <expect marker="C0Title" language="french" standard="3" customer="3"/>
+    <expect marker="C0Subtitle" language="french" standard="2" customer="3"/>
+    <expect marker="C0Body" language="french"/>
+    <expect marker="C1Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C1Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C1Body" language="ngerman"/>
+    <expect marker="AfterCase" language="ngerman"/>
+  </case>
+  <case name="root-english-latvian">
+    <hub xmlns="http://docbook.org/ns/docbook" xml:lang="de">
+      <info>
+        <title>Chapter language transition controls</title>
+      </info>
+      <chapter xml:lang="de">
+        <info>
+          <title xml:lang="de">C0Title<br/>
+          </title>
+          <subtitle xml:lang="de">C0Subtitle</subtitle>
+        </info>
+        <para>C0Body</para>
+      </chapter>
+      <chapter xml:lang="en">
+        <info>
+          <title xml:lang="en">C1Title<br/>
+          </title>
+          <subtitle xml:lang="en">C1Subtitle</subtitle>
+        </info>
+        <para>C1Body</para>
+      </chapter>
+      <chapter xml:lang="lv">
+        <info>
+          <title xml:lang="lv">C2Title<br/>
+          </title>
+          <subtitle xml:lang="lv">C2Subtitle</subtitle>
+        </info>
+        <para>C2Body</para>
+      </chapter>
+    </hub>
+    <expect marker="C0Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C0Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C0Body" language="ngerman"/>
+    <expect marker="C1Title" language="english" standard="3" customer="3"/>
+    <expect marker="C1Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C1Body" language="english"/>
+    <expect marker="C2Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C2Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C2Body" language="ngerman"/>
+    <expect marker="AfterCase" language="ngerman"/>
+  </case>
+  <case name="english-latvian-latvian">
+    <hub xmlns="http://docbook.org/ns/docbook" xml:lang="de">
+      <info>
+        <title>Chapter language transition controls</title>
+      </info>
+      <chapter xml:lang="en">
+        <info>
+          <title xml:lang="en">C0Title<br/>
+          </title>
+          <subtitle xml:lang="en">C0Subtitle</subtitle>
+        </info>
+        <para>C0Body</para>
+      </chapter>
+      <chapter xml:lang="lv">
+        <info>
+          <title xml:lang="lv">C1Title<br/>
+          </title>
+          <subtitle xml:lang="lv">C1Subtitle</subtitle>
+        </info>
+        <para>C1Body</para>
+      </chapter>
+      <chapter xml:lang="lv">
+        <info>
+          <title xml:lang="lv">C2Title<br/>
+          </title>
+          <subtitle xml:lang="lv">C2Subtitle</subtitle>
+        </info>
+        <para>C2Body</para>
+      </chapter>
+    </hub>
+    <expect marker="C0Title" language="english" standard="3" customer="3"/>
+    <expect marker="C0Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C0Body" language="english"/>
+    <expect marker="C1Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C1Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C1Body" language="ngerman"/>
+    <expect marker="C2Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C2Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C2Body" language="ngerman"/>
+    <expect marker="AfterCase" language="ngerman"/>
+  </case>
+  <case name="english-empty-untagged">
+    <hub xmlns="http://docbook.org/ns/docbook" xml:lang="de">
+      <info>
+        <title>Chapter language transition controls</title>
+      </info>
+      <chapter xml:lang="en">
+        <info>
+          <title xml:lang="en">C0Title<br/>
+          </title>
+          <subtitle xml:lang="en">C0Subtitle</subtitle>
+        </info>
+        <para>C0Body</para>
+      </chapter>
+      <chapter xml:lang="">
+        <info>
+          <title xml:lang="">C1Title<br/>
+          </title>
+          <subtitle xml:lang="">C1Subtitle</subtitle>
+        </info>
+        <para>C1Body</para>
+      </chapter>
+      <chapter>
+        <info>
+          <title>C2Title<br/>
+          </title>
+          <subtitle>C2Subtitle</subtitle>
+        </info>
+        <para>C2Body</para>
+      </chapter>
+    </hub>
+    <expect marker="C0Title" language="english" standard="3" customer="3"/>
+    <expect marker="C0Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C0Body" language="english"/>
+    <expect marker="C1Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C1Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C1Body" language="ngerman"/>
+    <expect marker="C2Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C2Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C2Body" language="ngerman"/>
+    <expect marker="AfterCase" language="ngerman"/>
+  </case>
+  <case name="english-root-mask">
+    <hub xmlns="http://docbook.org/ns/docbook" xml:lang="en">
+      <info>
+        <title>Chapter language transition controls</title>
+      </info>
+      <chapter xml:lang="en">
+        <info>
+          <title xml:lang="en">C0Title<br/>
+          </title>
+          <subtitle xml:lang="en">C0Subtitle</subtitle>
+        </info>
+        <para>C0Body</para>
+      </chapter>
+      <chapter xml:lang="lv">
+        <info>
+          <title xml:lang="lv">C1Title<br/>
+          </title>
+          <subtitle xml:lang="lv">C1Subtitle</subtitle>
+        </info>
+        <para>C1Body</para>
+      </chapter>
+      <chapter>
+        <info>
+          <title>C2Title<br/>
+          </title>
+          <subtitle>C2Subtitle</subtitle>
+        </info>
+        <para>C2Body</para>
+      </chapter>
+    </hub>
+    <expect marker="C0Title" language="english" standard="3" customer="3"/>
+    <expect marker="C0Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C0Body" language="english"/>
+    <expect marker="C1Title" language="english" standard="3" customer="3"/>
+    <expect marker="C1Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C1Body" language="english"/>
+    <expect marker="C2Title" language="english" standard="3" customer="3"/>
+    <expect marker="C2Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C2Body" language="english"/>
+    <expect marker="AfterCase" language="english"/>
+  </case>
+  <case name="french-root">
+    <hub xmlns="http://docbook.org/ns/docbook" xml:lang="fr">
+      <info>
+        <title>Chapter language transition controls</title>
+      </info>
+      <chapter xml:lang="en">
+        <info>
+          <title xml:lang="en">C0Title<br/>
+          </title>
+          <subtitle xml:lang="en">C0Subtitle</subtitle>
+        </info>
+        <para>C0Body</para>
+      </chapter>
+      <chapter xml:lang="lv">
+        <info>
+          <title xml:lang="lv">C1Title<br/>
+          </title>
+          <subtitle xml:lang="lv">C1Subtitle</subtitle>
+        </info>
+        <para>C1Body</para>
+      </chapter>
+      <chapter>
+        <info>
+          <title>C2Title<br/>
+          </title>
+          <subtitle>C2Subtitle</subtitle>
+        </info>
+        <para>C2Body</para>
+      </chapter>
+    </hub>
+    <expect marker="C0Title" language="english" standard="3" customer="3"/>
+    <expect marker="C0Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C0Body" language="english"/>
+    <expect marker="C1Title" language="french" standard="3" customer="3"/>
+    <expect marker="C1Subtitle" language="french" standard="2" customer="3"/>
+    <expect marker="C1Body" language="french"/>
+    <expect marker="C2Title" language="french" standard="3" customer="3"/>
+    <expect marker="C2Subtitle" language="french" standard="2" customer="3"/>
+    <expect marker="C2Body" language="french"/>
+    <expect marker="AfterCase" language="french"/>
+  </case>
+  <case name="same-mapped">
+    <hub xmlns="http://docbook.org/ns/docbook" xml:lang="de">
+      <info>
+        <title>Chapter language transition controls</title>
+      </info>
+      <chapter xml:lang="en">
+        <info>
+          <title xml:lang="en">C0Title<br/>
+          </title>
+          <subtitle xml:lang="en">C0Subtitle</subtitle>
+        </info>
+        <para>C0Body</para>
+      </chapter>
+      <chapter xml:lang="en">
+        <info>
+          <title xml:lang="en">C1Title<br/>
+          </title>
+          <subtitle xml:lang="en">C1Subtitle</subtitle>
+        </info>
+        <para>C1Body</para>
+      </chapter>
+      <chapter>
+        <info>
+          <title>C2Title<br/>
+          </title>
+          <subtitle>C2Subtitle</subtitle>
+        </info>
+        <para>C2Body</para>
+      </chapter>
+    </hub>
+    <expect marker="C0Title" language="english" standard="3" customer="3"/>
+    <expect marker="C0Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C0Body" language="english"/>
+    <expect marker="C1Title" language="english" standard="3" customer="3"/>
+    <expect marker="C1Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C1Body" language="english"/>
+    <expect marker="C2Title" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C2Subtitle" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C2Body" language="ngerman"/>
+    <expect marker="AfterCase" language="ngerman"/>
+  </case>
+  <case name="heading-inline-controls">
+    <hub xmlns="http://docbook.org/ns/docbook" xml:lang="de">
+      <info>
+        <title>Chapter language transition controls</title>
+      </info>
+      <chapter xml:lang="en">
+        <info>
+          <title xml:lang="en">C0Title<phrase xml:lang="de">C0TitleInline</phrase>
+            <br/>
+          </title>
+          <subtitle xml:lang="en">C0Subtitle<phrase xml:lang="de">C0SubtitleInline</phrase>
+          </subtitle>
+        </info>
+        <para>C0Body</para>
+      </chapter>
+      <chapter xml:lang="lv">
+        <info>
+          <title xml:lang="en">C1Title<phrase xml:lang="de">C1TitleInline</phrase>
+            <br/>
+          </title>
+          <subtitle xml:lang="en">C1Subtitle<phrase xml:lang="de">C1SubtitleInline</phrase>
+          </subtitle>
+        </info>
+        <para>C1Body</para>
+      </chapter>
+      <chapter>
+        <info>
+          <title xml:lang="en">C2Title<phrase xml:lang="de">C2TitleInline</phrase>
+            <br/>
+          </title>
+          <subtitle xml:lang="en">C2Subtitle<phrase xml:lang="de">C2SubtitleInline</phrase>
+          </subtitle>
+        </info>
+        <para>C2Body</para>
+      </chapter>
+    </hub>
+    <expect marker="C0Title" language="english" standard="3" customer="3"/>
+    <expect marker="C0TitleInline" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C0Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C0SubtitleInline" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C0Body" language="english"/>
+    <expect marker="C1Title" language="english" standard="3" customer="3"/>
+    <expect marker="C1TitleInline" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C1Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C1SubtitleInline" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C1Body" language="ngerman"/>
+    <expect marker="C2Title" language="english" standard="3" customer="3"/>
+    <expect marker="C2TitleInline" language="ngerman" standard="3" customer="3"/>
+    <expect marker="C2Subtitle" language="english" standard="2" customer="3"/>
+    <expect marker="C2SubtitleInline" language="ngerman" standard="2" customer="3"/>
+    <expect marker="C2Body" language="ngerman"/>
+    <expect marker="AfterCase" language="ngerman"/>
+  </case>
+</cases>
