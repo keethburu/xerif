@@ -1582,7 +1582,8 @@
   <template context="dbk:footnote/dbk:para">
      <xsl:next-match/>
     <xsl:if test="exists(following-sibling::dbk:para)">
-     <xsl:text>&#xa;</xsl:text>
+     <!-- Delay the paragraph token until after non-long hyperlink argument parsing. -->
+     <xsl:text>\endgraf&#xa;</xsl:text>
     </xsl:if>
   </template>
   

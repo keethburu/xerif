@@ -136,7 +136,7 @@ def copied_note_cases():
     for target in ('http://example.org', 'https://example.org', 'ftp://example.org', 'mailto:info@example.org'):
         for multiple in (False, True):
             extra = '<para xml:lang="de">Zweit <phrase xml:lang="en">Second</phrase></para>' if multiple else ''
-            rendered_extra = '\nZweit \\foreignlanguage{english}{Second}' if multiple else ''
+            rendered_extra = '\\endgraf\nZweit \\foreignlanguage{english}{Second}' if multiple else ''
             italic = r'{\itshape ' if multiple else r'\textit{'
             content = (f'<link xlink:href="{target}"><phrase css:font-style="italic">Label'
                        + note % extra + after + '</phrase></link>' + after)
