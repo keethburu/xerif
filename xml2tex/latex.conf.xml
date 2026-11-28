@@ -1547,8 +1547,8 @@
     </xsl:choose>
   </template>
   
-  <!-- put footnotes in extra group in case they appear in optional arguments or other stuff -->
-
+  <!-- Reset heading language and suppression together before note rendering;
+       copied link labels may no longer have heading ancestors. -->
   <xsl:template match="dbk:footnote" mode="xml2tex" priority="100000">
     <xsl:param name="remove-footnote" as="xs:boolean?" tunnel="yes"/>
     <xsl:param name="toc-override" as="xs:boolean?" tunnel="yes"/>
@@ -1563,6 +1563,7 @@
     </xsl:if>
   </xsl:template>
   
+  <!-- Group footnotes that may appear in optional arguments. -->
   <template context="dbk:footnote">
     <xsl:text>{</xsl:text>
     <xsl:next-match/>

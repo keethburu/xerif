@@ -71,7 +71,7 @@ pipeline or PDF output. Full rendering additionally requires the complete
 transpect/CoCoTeX/LuaLaTeX pipeline; XML/XSLT-only results do not establish PDF
 correctness.
 
-## TOC inline language
+## Inline heading language
 
 Run the bounded styled-language regression with the same pinned dependencies
 and inherited mapping as the heading suite:
@@ -113,13 +113,13 @@ paragraph notes, an enclosing German phrase, and phrases after each note check
 that resets apply throughout the note and restore the enclosing language scope.
 
 `toc-inline-language.py` renders the synthetic `toc-inline-language.xml` in
-the pinned Scripello worker. It now checks explicit German styled link labels
+the pinned Scripello worker. It checks explicit German styled link labels
 inside English body and running titles/subtitles as well as both TOC routes,
-including nested script language scopes in the body. It compares literal labels and their break markers
-with the compatibility mapping installed in that image, and checks the emitted
-TeX for distinct link labels, styled script runs, and note references. Set
-`SCRIPPELLO_HEAVY_LOCK` to the shared Scripello rendering lock before running the
-commands.
+including nested script language scopes in the body. It compares literal labels
+and their break markers with the compatibility mapping installed in that image,
+and checks the emitted TeX for distinct link labels, styled script runs, and note
+references. Set `SCRIPPELLO_HEAVY_LOCK` to the shared Scripello rendering lock
+before running the commands.
 
 The overlay command below is a development mapping check. Source acceptance
 requires a separately cleared render under the real shared lock using complete,

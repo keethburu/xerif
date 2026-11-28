@@ -87,12 +87,16 @@ body heading and for running heads and table-of-contents entries generated from
 that title or subtitle. If the converter has no mapping for the language code,
 the heading uses the surrounding language.
 
-In body headings, running headings, and both standard and customer
-table-of-contents entries, a nonblank inline
-`phrase` with its own mapped `xml:lang` retains that language when it differs
-from the mapped language of the enclosing `title` or `subtitle`. This also
-applies inside styled superscripts, subscripts, and distinct link labels.
-Literal URL labels keep their existing URL rendering and language handling.
+In mapped body headings, running headings, and both standard and customer
+table-of-contents entries, a nonblank inline `phrase` with its own mapped
+`xml:lang` retains that language when it differs from the active enclosing
+language. This also applies inside styled superscripts, subscripts, and distinct
+link labels.
+Literal URL and email labels keep their native rendering and language handling;
+inside a language-tagged phrase, their explicit nested language overrides remain
+active. Footnote paragraphs honor their own `xml:lang` and nested phrase
+overrides, including in copied link labels. Notes are omitted from running heads
+and TOCs.
 
 ### Multiple input and output formats
 
