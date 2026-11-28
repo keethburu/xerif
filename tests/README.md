@@ -93,6 +93,18 @@ CI runs it and requires the pinned pre-fix `054af5c` mapping to fail specificall
 at its body language output assertion. `--config` also accepts other negative
 control mappings.
 
+The same check executes inherited paragraph language selection inside title and
+subtitle notes, including a note nested in a German phrase. Its independent
+expected TeX requires an English phrase inside a German note paragraph to
+override that paragraph, and requires notes to remain absent from running and
+TOC output. Literal URL and email labels pass through the actual heading-label
+marking template and both `ulink` and copied `link` handlers; English nested
+phrases must retain their override inside surrounding German text. Following
+phrases check restoration of both the enclosing and sibling language scopes.
+A distinct `ulink` label checks that normal heading language handling still
+emits a single override. These output contracts reject stale context and
+suppression leaking across note or literal-label boundaries.
+
 `toc-inline-language.py` renders the synthetic `toc-inline-language.xml` in
 the pinned Scripello worker. It now checks explicit German styled link labels
 inside English body and running titles/subtitles as well as both TOC routes,

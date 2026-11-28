@@ -35,8 +35,11 @@ def stylesheet(config, inherited):
         function = E.SubElement(sheet, f"{{{XSL}}}function", name=name)
         E.SubElement(function, f"{{{XSL}}}param", name="value")
         E.SubElement(function, f"{{{XSL}}}sequence", select="$value")
-    # Execute inherited phrase-language behavior as well as the style wrappers.
-    for node in inherited.xpath('c:template[starts-with(@context,"dbk:phrase[@xml:lang]")]', namespaces=NS):
+    E.SubElement(sheet, f"{{{XSL}}}variable", name="langs", select="/dbk:hub/@xml:lang")
+    for node in inherited.xpath(
+        'c:template[starts-with(@context,"dbk:phrase[@xml:lang]") or starts-with(@context,"dbk:para[xml2tex:lang-to-babel-lang")]',
+        namespaces=NS,
+    ):
         template = heading.compile_fragment(node)
         template.set("priority", "100")
         sheet.append(template)
@@ -48,9 +51,85 @@ def stylesheet(config, inherited):
         namespaces=NS,
     ):
         sheet.append(copy.deepcopy(node))
-    link = config.xpath('c:template[contains(@context,"dbk:link[@xlink:href != .]")]', namespaces=NS)
-    assert len(link) == 1
-    sheet.append(heading.compile_fragment(link[0]))
+    for node in config.xpath(
+        'c:template[contains(@context,"dbk:link[@xlink:href != .]") or @context="dbk:ulink" or @context="dbk:footnote/dbk:para"]',
+        namespaces=NS,
+    ):
+        sheet.append(heading.compile_fragment(node))
+    return sheet
+
+
+def render(processor, sheet, config, destination, source):
+    name, query, subtitle = destination
+    params = config.xpath(query, namespaces=NS)
+    assert len(params) == 1, (name, len(params))
+    param = params[0]
+    probe = copy.deepcopy(sheet)
+    driver = E.SubElement(probe, f"{{{XSL}}}template", match="/")
+    context = '/dbk:hub/dbk:chapter/dbk:info'
+    if name.startswith('body-'):
+        context += '/dbk:subtitle' if subtitle else '/dbk:title'
+    loop = E.SubElement(driver, f"{{{XSL}}}for-each", select=context)
+    for variable in param.xpath('ancestor::c:template/xsl:variable | preceding-sibling::xsl:variable', namespaces=NS):
+        loop.append(copy.deepcopy(variable))
+    rendered_param = heading.compile_fragment(param)
+    rendered_param.find(f"{{{XSL}}}apply-templates").set("mode", "xml2tex")
+    loop.append(rendered_param)
+    executable = processor.new_xslt30_processor().compile_stylesheet(stylesheet_text=E.tostring(probe).decode())
+    return executable.transform_to_string(source_file=str(source))
+
+
+def boundary_cases():
+    restoration = (r'\foreignlanguage{english}{AfterEnglish}Nach}'
+                   r'\foreignlanguage{ngerman}{Sibling}End')
+    tail = ('<phrase xml:lang="en">AfterEnglish</phrase>Nach</phrase>'
+            '<phrase xml:lang="de">Sibling</phrase>End')
+    note = '<footnote><para xml:lang="de">Deutsch <phrase xml:lang="en">English</phrase></para></footnote>'
+    yield ('footnote', 'T' + note + '<phrase xml:lang="de">Sibling</phrase>End',
+           r'T\protect\footnote{%s\selectlanguage{ngerman}%%' + '\n'
+           + r'Deutsch \foreignlanguage{english}{English}}\foreignlanguage{ngerman}{Sibling}End',
+           r'T\foreignlanguage{ngerman}{Sibling}End')
+    yield ('nested-footnote', '<phrase xml:lang="de">Vor' + note + tail,
+           r'\foreignlanguage{ngerman}{Vor\protect\footnote{%s\selectlanguage{ngerman}%%' + '\n'
+           + r'Deutsch \foreignlanguage{english}{English}}' + restoration,
+           r'\foreignlanguage{ngerman}{Vor' + restoration)
+    for element, target in (('ulink', 'https://example.org/profile'),
+                            ('ulink', 'mailto:info@example.org'),
+                            ('link', 'mailto:info@example.org')):
+        label = target.removeprefix('mailto:')
+        attribute = 'url' if element == 'ulink' else 'xlink:href'
+        if element == 'ulink':
+            content = f'<phrase xml:lang="en" css:font-style="italic">{label}</phrase>'
+            formatted = r'\foreignlanguage{english}{\textit{' + label + '}}'
+        else:
+            content = f'<phrase css:font-style="italic"><phrase xml:lang="en">{label}</phrase></phrase>'
+            formatted = r'\textit{\foreignlanguage{english}{' + label + '}}'
+        expected = (r'\foreignlanguage{ngerman}{Vor\href{' + target + '}{' + formatted + '}' + restoration)
+        yield (f'literal-{element}/{target.split(":")[0]}',
+               f'<phrase xml:lang="de">Vor<{element} {attribute}="{target}">{content}</{element}>' + tail,
+               expected, expected)
+    expected = (r'\foreignlanguage{ngerman}{Vor\href{https://example.org/profile}'
+                r'{\foreignlanguage{english}{\textit{Label}}}' + restoration)
+    yield ('nonliteral-ulink',
+           '<phrase xml:lang="de">Vor<ulink url="https://example.org/profile">'
+           '<phrase xml:lang="en" css:font-style="italic">Label</phrase></ulink>' + tail,
+           expected, expected)
+
+
+def escape_stylesheet(config):
+    sheet = E.fromstring(b'''<xsl:stylesheet version="2.0"
+      xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+      xmlns:dbk="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xml2tex="http://transpect.io/xml2tex">
+      <xsl:output method="xml"/>
+      <xsl:template match="/"><xsl:apply-templates select="." mode="escape-bad-chars"/></xsl:template>
+      <xsl:template match="@* | node()" mode="escape-bad-chars" priority="-100">
+        <xsl:copy><xsl:apply-templates select="@* | node()" mode="#current"/></xsl:copy>
+      </xsl:template>
+    </xsl:stylesheet>''')
+    for node in config.xpath('xsl:template[@mode="escape-bad-chars"][contains(@match,"dbk:ulink")]', namespaces=NS):
+        sheet.append(copy.deepcopy(node))
     return sheet
 
 
@@ -86,22 +165,7 @@ def main():
                               f'<title{attribute}>{content}</title><subtitle{attribute}>{content}</subtitle>'
                               '</info></chapter></hub>')
             for name, query, subtitle in destinations:
-                params = config.xpath(query, namespaces=NS)
-                assert len(params) == 1, (name, len(params))
-                param = params[0]
-                probe = copy.deepcopy(sheet)
-                driver = E.SubElement(probe, f"{{{XSL}}}template", match="/")
-                context = '/dbk:hub/dbk:chapter/dbk:info'
-                if name.startswith('body-'):
-                    context += '/dbk:subtitle' if subtitle else '/dbk:title'
-                loop = E.SubElement(driver, f"{{{XSL}}}for-each", select=context)
-                for variable in param.xpath('ancestor::c:template/xsl:variable | preceding-sibling::xsl:variable', namespaces=NS):
-                    loop.append(copy.deepcopy(variable))
-                rendered_param = heading.compile_fragment(param)
-                rendered_param.find(f"{{{XSL}}}apply-templates").set("mode", "xml2tex")
-                loop.append(rendered_param)
-                executable = processor.new_xslt30_processor().compile_stylesheet(stylesheet_text=E.tostring(probe).decode())
-                actual = executable.transform_to_string(source_file=str(source))
+                actual = render(processor, sheet, config, (name, query, subtitle), source)
                 # Native unwrapped labels have no language wrapper. A mapped
                 # heading must preserve the explicit overrides inside its scope.
                 inline = language in ('en', 'en-US')
@@ -120,6 +184,24 @@ def main():
                     failures.append(f'{name}/{language or "untagged"}\nexpected: {expected!r}\nactual: {actual!r}')
                 else:
                     print(f'PASS {name}/{language or "untagged"}')
+        escape = processor.new_xslt30_processor().compile_stylesheet(stylesheet_text=E.tostring(escape_stylesheet(config)).decode())
+        for case, content, body, filtered in boundary_cases():
+            xml = ('<hub xmlns="http://docbook.org/ns/docbook" xmlns:css="http://www.w3.org/1996/css" '
+                   'xmlns:xlink="http://www.w3.org/1999/xlink" xml:lang="en"><chapter><info>'
+                   f'<title xml:lang="en">{content}</title><subtitle xml:lang="en">{content}</subtitle>'
+                   '</info></chapter></hub>')
+            source.write_text(escape.transform_to_string(xdm_node=processor.parse_xml(xml_text=xml)))
+            for destination in destinations:
+                name, _, subtitle = destination
+                actual = render(processor, sheet, config, destination, source)
+                expected = body if name.startswith('body-') else filtered
+                if 'footnote' in case and name.startswith('body-'):
+                    expected = expected % ('' if subtitle else r'\protect')
+                expected = r'{\protect\foreignlanguage{english}{' + expected + '}}'
+                if actual != expected:
+                    failures.append(f'{name}/{case}\nexpected: {expected!r}\nactual: {actual!r}')
+                else:
+                    print(f'PASS {name}/{case}')
     assert not failures, '\n\n'.join(failures)
 
 

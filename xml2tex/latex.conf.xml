@@ -1585,7 +1585,11 @@
         <xsl:if test=".//dbk:phrase[@role eq 'hub:identifier'][1]/@xreflabel">
           <option select=".//dbk:phrase[@role eq 'hub:identifier'][1]/@xreflabel"/>
         </xsl:if>
-        <param/>
+        <param>
+          <with-param name="toc-heading-language" select="()" as="attribute(xml:lang)?" tunnel="yes"/>
+          <with-param name="toc-phrase-language" select="()" as="xs:string?" tunnel="yes"/>
+          <with-param name="suppress-foreign-lang" select="false()" as="xs:boolean?" tunnel="yes"/>
+        </param>
       </rule>
     </xsl:if>
   </template>
@@ -2933,11 +2937,13 @@
   <template context="dbk:ulink">
     <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
     <xsl:param name="toc-phrase-language" as="xs:string?" tunnel="yes"/>
+    <xsl:param name="suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
     <rule name="href" type="cmd">
       <param select="replace(xml2tex:optionally-encode-uri((@xlink:href, @url)[1]), '([%#])', '\\$1')"/>
       <param>
         <with-param name="toc-heading-language" select="$toc-heading-language[not(current()/@xml2tex:literal-link-label)]" as="attribute(xml:lang)?" tunnel="yes"/>
         <with-param name="toc-phrase-language" select="$toc-phrase-language[not(current()/@xml2tex:literal-link-label)]" as="xs:string?" tunnel="yes"/>
+        <with-param name="suppress-foreign-lang" select="if (@xml2tex:literal-link-label) then false() else $suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
       </param>
     </rule>
   </template>
@@ -3414,6 +3420,7 @@
     <!-- this only works if option 'collect-all-xsl' on xml2tex is set to yes. otherwise templates matching the same elements in different modes will not be considered -->
     <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
     <xsl:param name="toc-phrase-language" as="xs:string?" tunnel="yes"/>
+    <xsl:param name="suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
     <xsl:variable name="destination" select="(@url, @xlink:href)[1]"/>
     <xsl:variable name="label-heading-language"
                   select="if (@xml2tex:literal-link-label) then () else $toc-heading-language"/>
@@ -3426,6 +3433,7 @@
       <param select="xml2tex:replace-recursive-linktext(node(), $active-toc-language)">
         <with-param name="toc-heading-language" select="$label-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
         <with-param name="toc-phrase-language" select="$toc-phrase-language[$label-heading-language]" as="xs:string?" tunnel="yes"/>
+        <with-param name="suppress-foreign-lang" select="if (@xml2tex:literal-link-label) then false() else $suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
       </param>
     </rule>
   </template>
