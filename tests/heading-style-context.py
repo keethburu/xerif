@@ -21,8 +21,8 @@ NS = {"xsl": XSL, "c": CONF}
 INHERITED_SHA256 = "dee9e30f77fd71e473494cf3958b14f2e2d6f652bbc76e3384e7d74738f7c1e9"
 
 
-def xsl(name, **attributes):
-    return E.Element(f"{{{XSL}}}{name}", **attributes)
+def xsl(local_name, **attributes):
+    return E.Element(f"{{{XSL}}}{local_name}", **attributes)
 
 
 def compile_fragment(node):
@@ -106,6 +106,7 @@ def stylesheet(config, inherited):
     # Use the mapping handlers and their helpers unchanged.
     for node in config.xpath(
         'xsl:template[contains(@match,"@css:color")]'
+        ' | xsl:template[@match="dbk:footnote"][@mode="xml2tex"]'
         ' | xsl:template[@mode="xml2tex:heading-without-color"]'
         ' | xsl:function[@name="xml2tex:heading-node-in-copy" or @name="xml2tex:heading-language-start"]'
         ' | xsl:variable[@name="xml2tex:headings-without-color"]',

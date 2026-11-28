@@ -67,6 +67,8 @@ def stylesheet(config, inherited, policy):
     E.SubElement(sheet, f"{{{XSL}}}variable", name="notes-per-chapter", select=f"'{policy}'")
     for node in config.xpath('xsl:variable[@name="link-refs" or @name="anchor-ids" or @name="anchor-digits"]', namespaces=NS):
         sheet.append(copy.deepcopy(node))
+    for node in config.xpath('xsl:template[@match="dbk:footnote"][@mode="xml2tex"]', namespaces=NS):
+        sheet.append(copy.deepcopy(node))
     for node in inherited.xpath('xsl:key[@name="style"]', namespaces=NS):
         sheet.append(copy.deepcopy(node))
     for node in inherited.findall(f"{{{CONF}}}template"):

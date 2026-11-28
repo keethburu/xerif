@@ -1,4 +1,4 @@
-"""Exercise both TOCs through the pinned Scripello renderer."""
+"""Exercise heading languages in body, running heads and both TOC routes."""
 
 import argparse
 import hashlib
@@ -52,6 +52,21 @@ def compare_native_links(output: str, compatibility: str, targets: tuple[str, ..
 
 
 def check_tex(tex: str, compatibility: str, route: str) -> None:
+    for macro, start, end, fragment in (
+        ("tpTitle", "TitleStart", "TitleEnd", r"\href{https://example.org/@team/contact}{\foreignlanguage{ngerman}{\textit{Kontakt}}}"),
+        ("tpSubtitle", "SubtitleStart", "SubtitleEnd", r"\href{mailto:info@example.org}{\foreignlanguage{ngerman}{\textbf{Anfrage}}}"),
+        ("tpRunTitle", "TitleStart", "TitleEnd", r"\href{https://example.org/@team/contact}{\foreignlanguage{ngerman}{\textit{Kontakt}}}"),
+        ("tpRunSubtitle", "SubtitleStart", "SubtitleEnd", r"\href{mailto:info@example.org}{\foreignlanguage{ngerman}{\textbf{Anfrage}}}"),
+    ):
+        require_fragments(entry(tex, macro, start, end), (fragment,))
+    require_fragments(entry(tex, "tpTitle", "TitleStart", "TitleEnd"), (
+        r"\textsuperscript{\textit{ASameTop B}}",
+        r"\textsubscript{\textbf{A\foreignlanguage{ngerman}{Tief} B}}",
+    ))
+    require_fragments(entry(tex, "tpSubtitle", "SubtitleStart", "SubtitleEnd"), (
+        r"\textsubscript{\textit{ASameBottom B}}",
+        r"\textsuperscript{\textit{\textbf{A\foreignlanguage{ngerman}{Hoch} B}}}",
+    ))
     title = entry(tex, "tpTocTitle", "TitleStart", "TitleEnd")
     compare_native_links(title, entry(compatibility, "tpTocTitle", "TitleStart", "TitleEnd"), (
         r"\href{https://example.org/@team/profil}",

@@ -986,7 +986,9 @@
     <rule name="tpTitle" type="cmd" break-before="1">
       <xsl:variable name="lang-start" select="xml2tex:heading-language-start(@xml:lang)"/>
       <xsl:variable name="lang-end" select="'}'[exists($lang-start)]"/>
-      <param select="$lang-start, node()[not(@role eq 'hub:identifier')], $lang-end"/>
+      <param select="$lang-start, node()[not(@role eq 'hub:identifier')], $lang-end">
+        <with-param name="toc-heading-language" select="@xml:lang[exists($lang-start)]" as="attribute(xml:lang)?" tunnel="yes"/>
+      </param>
     </rule>
     <xsl:call-template name="create-bookmark-content"/>
   </template>
@@ -1249,6 +1251,7 @@
           <xsl:variable name="lang-start" select="xml2tex:heading-language-start(dbk:title/@xml:lang)"/>
           <xsl:variable name="lang-end" select="'}'[exists($lang-start)]"/>
           <param select="$lang-start, dbk:title/node()[not(self::dbk:phrase[@role = ('identifier', 'hub:identifier')])], $lang-end">
+            <with-param name="toc-heading-language" select="dbk:title/@xml:lang[exists($lang-start)]" as="attribute(xml:lang)?" tunnel="yes"/>
             <with-param name="remove-footnote" select="true()" as="xs:boolean?" tunnel="yes"/>
             <with-param name="remove-newline" select="true()" as="xs:boolean?" tunnel="yes"/>
             <with-param name="remove-indexterm" select="true()" as="xs:boolean?" tunnel="yes"/>
@@ -1274,6 +1277,7 @@
         <xsl:variable name="lang-start" select="xml2tex:heading-language-start(dbk:subtitle/@xml:lang)"/>
         <xsl:variable name="lang-end" select="'}'[exists($lang-start)]"/>
         <param select="$lang-start, dbk:subtitle/node(), $lang-end">
+          <with-param name="toc-heading-language" select="dbk:subtitle/@xml:lang[exists($lang-start)]" as="attribute(xml:lang)?" tunnel="yes"/>
           <with-param name="remove-footnote" select="true()" as="xs:boolean?" tunnel="yes"/>
           <with-param name="remove-newline" select="true()" as="xs:boolean?" tunnel="yes"/>
           <with-param name="remove-textcolor" select="$remove-textcolor-for-runningtitles" as="xs:boolean?" tunnel="yes"/>
@@ -1543,8 +1547,23 @@
     </xsl:choose>
   </template>
   
-  <!-- put footnotes in extra group in case they appear in optional arguments or other stuff -->
+  <!-- Reset heading language and suppression together before note rendering;
+       copied link labels may no longer have heading ancestors. -->
+  <xsl:template match="dbk:footnote" mode="xml2tex" priority="100000">
+    <xsl:param name="remove-footnote" as="xs:boolean?" tunnel="yes"/>
+    <xsl:param name="toc-override" as="xs:boolean?" tunnel="yes"/>
+    <xsl:param name="bm-override" as="xs:boolean?" tunnel="yes"/>
+    <xsl:param name="run-override" as="xs:boolean?" tunnel="yes"/>
+    <xsl:if test="not($remove-footnote) and not($toc-override) and not($bm-override) and not($run-override)">
+      <xsl:next-match>
+        <xsl:with-param name="toc-heading-language" select="()" as="attribute(xml:lang)?" tunnel="yes"/>
+        <xsl:with-param name="toc-phrase-language" select="()" as="xs:string?" tunnel="yes"/>
+        <xsl:with-param name="suppress-foreign-lang" select="false()" as="xs:boolean?" tunnel="yes"/>
+      </xsl:next-match>
+    </xsl:if>
+  </xsl:template>
   
+  <!-- Group footnotes that may appear in optional arguments. -->
   <template context="dbk:footnote">
     <xsl:text>{</xsl:text>
     <xsl:next-match/>
@@ -1572,18 +1591,12 @@
   <template context="dbk:title//dbk:footnote
                     |dbk:subtitle//dbk:footnote
                     |dbk:author//dbk:footnote">
-    <xsl:param name="remove-footnote" as="xs:boolean?" tunnel="yes"/>
-    <xsl:param name="toc-override" as="xs:boolean?" tunnel="yes"/>
-    <xsl:param name="bm-override" as="xs:boolean?" tunnel="yes"/>
-    <xsl:param name="run-override" as="xs:boolean?" tunnel="yes"/>
-    <xsl:if test="not($remove-footnote) and not($toc-override) and not($bm-override) and not($run-override)">
-      <rule name="protect\footnote" type="cmd">
-        <xsl:if test=".//dbk:phrase[@role eq 'hub:identifier'][1]/@xreflabel">
-          <option select=".//dbk:phrase[@role eq 'hub:identifier'][1]/@xreflabel"/>
-        </xsl:if>
-        <param/>
-      </rule>
-    </xsl:if>
+    <rule name="protect\footnote" type="cmd">
+      <xsl:if test=".//dbk:phrase[@role eq 'hub:identifier'][1]/@xreflabel">
+        <option select=".//dbk:phrase[@role eq 'hub:identifier'][1]/@xreflabel"/>
+      </xsl:if>
+      <param/>
+    </rule>
   </template>
   
   <xsl:variable name="col-head-right-style" select="'^[a-z]{1,3}headlineright$'" as="xs:string"/>
@@ -1607,7 +1620,9 @@
     <rule name="tpSubtitle" type="cmd" break-before="1" break-after="1">
       <xsl:variable name="lang-start" select="xml2tex:heading-language-start(@xml:lang)"/>
       <xsl:variable name="lang-end" select="'}'[exists($lang-start)]"/>
-      <param select="$lang-start, node(), $lang-end"/>
+      <param select="$lang-start, node(), $lang-end">
+        <with-param name="toc-heading-language" select="@xml:lang[exists($lang-start)]" as="attribute(xml:lang)?" tunnel="yes"/>
+      </param>
     </rule>
   </template>
   
@@ -2927,11 +2942,13 @@
   <template context="dbk:ulink">
     <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
     <xsl:param name="toc-phrase-language" as="xs:string?" tunnel="yes"/>
+    <xsl:param name="suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
     <rule name="href" type="cmd">
       <param select="replace(xml2tex:optionally-encode-uri((@xlink:href, @url)[1]), '([%#])', '\\$1')"/>
       <param>
         <with-param name="toc-heading-language" select="$toc-heading-language[not(current()/@xml2tex:literal-link-label)]" as="attribute(xml:lang)?" tunnel="yes"/>
         <with-param name="toc-phrase-language" select="$toc-phrase-language[not(current()/@xml2tex:literal-link-label)]" as="xs:string?" tunnel="yes"/>
+        <with-param name="suppress-foreign-lang" select="if (@xml2tex:literal-link-label and ($toc-phrase-language or ancestor::dbk:phrase[@xml:lang])) then false() else $suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
       </param>
     </rule>
   </template>
@@ -3278,8 +3295,11 @@
 
   <xsl:template match="dbk:phrase[@xml:lang][normalize-space()]"
                 mode="xml2tex" priority="999">
+    <!-- The active heading scope also travels through body/running headings:
+         copied link labels no longer have their original heading ancestors. -->
     <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
     <xsl:param name="toc-phrase-language" as="xs:string?" tunnel="yes"/>
+    <xsl:param name="suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
     <xsl:variable name="phrase-language" select="xml2tex:lang-to-babel-lang(@xml:lang)[$toc-heading-language][normalize-space()]"/>
     <xsl:variable name="language" select="$phrase-language[. ne ($toc-phrase-language, xml2tex:lang-to-babel-lang($toc-heading-language))[1]]"/>
     <xsl:call-template name="toc-language-start">
@@ -3287,6 +3307,7 @@
     </xsl:call-template>
     <xsl:next-match>
       <xsl:with-param name="toc-phrase-language" select="($language, $toc-phrase-language)[1]" tunnel="yes"/>
+      <xsl:with-param name="suppress-foreign-lang" select="if ($toc-heading-language) then true() else $suppress-foreign-lang" tunnel="yes"/>
     </xsl:next-match>
     <xsl:value-of select="'}'[$language]"/>
   </xsl:template>
@@ -3404,6 +3425,7 @@
     <!-- this only works if option 'collect-all-xsl' on xml2tex is set to yes. otherwise templates matching the same elements in different modes will not be considered -->
     <xsl:param name="toc-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
     <xsl:param name="toc-phrase-language" as="xs:string?" tunnel="yes"/>
+    <xsl:param name="suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
     <xsl:variable name="destination" select="(@url, @xlink:href)[1]"/>
     <xsl:variable name="label-heading-language"
                   select="if (@xml2tex:literal-link-label) then () else $toc-heading-language"/>
@@ -3411,11 +3433,14 @@
                   select="if ($label-heading-language)
                           then ($toc-phrase-language, xml2tex:lang-to-babel-lang($label-heading-language))[1]
                           else ()"/>
+    <!-- Leave native TOC suppression intact for literal labels, but release
+         suppression from an enclosing language phrase at the label boundary. -->
     <rule name="href" type="cmd">
       <param select="replace(xml2tex:optionally-encode-uri($destination), '(%|#|_|\\)', '\\$1' )"/>
       <param select="xml2tex:replace-recursive-linktext(node(), $active-toc-language)">
         <with-param name="toc-heading-language" select="$label-heading-language" as="attribute(xml:lang)?" tunnel="yes"/>
         <with-param name="toc-phrase-language" select="$toc-phrase-language[$label-heading-language]" as="xs:string?" tunnel="yes"/>
+        <with-param name="suppress-foreign-lang" select="if (@xml2tex:literal-link-label and ($toc-phrase-language or ancestor::dbk:phrase[@xml:lang])) then false() else $suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
       </param>
     </rule>
   </template>

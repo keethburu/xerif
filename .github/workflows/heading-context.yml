@@ -52,6 +52,24 @@ jobs:
           python -B tests/heading-config-schema.py --schema "$RUNNER_TEMP/xml2tex.rng" --landed-config "$RUNNER_TEMP/heading-landed.xml"
       - name: Run heading regression
         run: python -B tests/heading-style-context.py --docx2tex-conf "$RUNNER_TEMP/docx2tex-conf.xml"
+      - name: Run styled heading language regression
+        run: python -B tests/heading-inline-language.py --docx2tex-conf "$RUNNER_TEMP/docx2tex-conf.xml"
+      - name: Require styled heading baseline to fail body language assertions
+        shell: bash
+        run: |
+          if python -B tests/heading-inline-language.py --docx2tex-conf "$RUNNER_TEMP/docx2tex-conf.xml" --config "$RUNNER_TEMP/notes-baseline.xml" > "$RUNNER_TEMP/inline-negative.log" 2>&1; then
+            cat "$RUNNER_TEMP/inline-negative.log"
+            echo 'Styled heading baseline unexpectedly passed.' >&2
+            exit 1
+          fi
+          cat "$RUNNER_TEMP/inline-negative.log"
+          python - "$RUNNER_TEMP/inline-negative.log" <<'PY'
+          from pathlib import Path
+          import sys
+          log = Path(sys.argv[1]).read_text()
+          assert 'AssertionError: body-title/en\nexpected:' in log, log
+          assert '\nactual:' in log and 'Kontakt' in log and 'Anfrage' in log, log
+          PY
       - name: Run note reference mapping regression
         run: python -B tests/note-reference-mapping.py --docx2tex-conf "$RUNNER_TEMP/docx2tex-conf.xml"
       - name: Require notes baseline to fail its rendered-body label assertion

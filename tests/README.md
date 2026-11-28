@@ -71,14 +71,64 @@ pipeline or PDF output. Full rendering additionally requires the complete
 transpect/CoCoTeX/LuaLaTeX pipeline; XML/XSLT-only results do not establish PDF
 correctness.
 
-## TOC inline language
+## Inline heading language
+
+Run the bounded styled-language regression with the same pinned dependencies
+and inherited mapping as the heading suite:
+
+```sh
+python3 -B tests/heading-inline-language.py --docx2tex-conf /absolute/path/to/docx2tex/conf/conf.xml
+```
+
+It executes the actual body and running title/subtitle parameter selectors,
+both TOC selectors, phrase-language handlers, inherited bold/italic wrappers,
+and copied external-link label handlers. Independent expected output requires
+German styled labels inside mapped English headings, including the `en-US`
+alias. Unmapped Latvian and untagged headings retain their previous output;
+an unmapped inline phrase does not add a language scope. Short ASCII labels
+use identity stand-ins for tactical link breaking; language lookup is bounded
+to the pinned converter's English/German results. This is a mapping-level test,
+not a Python runtime converter or proof of complete generated TeX/PDF behavior.
+CI runs it and requires the pinned pre-fix `054af5c` mapping to fail specifically
+at its body language output assertion. `--config` also accepts other negative
+control mappings.
+
+The same check executes inherited paragraph language selection inside title and
+subtitle notes, including a note nested in a German phrase. Its independent
+expected TeX requires an English phrase inside a German note paragraph to
+override that paragraph, and requires notes to remain absent from running and
+TOC output. Literal URL and email labels pass through the actual heading-label
+marking template and both `ulink` and copied `link` handlers; English nested
+phrases must retain their override inside surrounding German text. Following
+phrases check restoration of both the enclosing and sibling language scopes.
+A distinct `ulink` label checks that normal heading language handling still
+emits a single override. These output contracts reject stale context and
+suppression leaking across note or literal-label boundaries.
+
+Copied styled HTTP, HTTPS, FTP, and email labels also contain notes with explicit
+German paragraphs and nested English phrases. These cases execute the inherited
+note macro and the shared note boundary, requiring the English override in body
+title/subtitle output and no note in running or TOC output. Single and multiple
+paragraph notes, an enclosing German phrase, and phrases after each note check
+that resets apply throughout the note and restore the enclosing language scope.
 
 `toc-inline-language.py` renders the synthetic `toc-inline-language.xml` in
-the pinned Scripello worker. It compares literal labels and their break markers
-with the compatibility mapping installed in that image, and checks the emitted
-TeX for distinct link labels, styled script runs, and note references. Set
-`SCRIPPELLO_HEAVY_LOCK` to the shared Scripello rendering lock before running the
-commands.
+the pinned Scripello worker. It checks explicit German styled link labels
+inside English body and running titles/subtitles as well as both TOC routes,
+including nested script language scopes in the body. It compares literal labels
+and their break markers with the compatibility mapping installed in that image,
+and checks the emitted TeX for distinct link labels, styled script runs, and note
+references. Set `SCRIPPELLO_HEAVY_LOCK` to the shared Scripello rendering lock
+before running the commands.
+
+The overlay command below is a development mapping check. Source acceptance
+requires a separately cleared render under the real shared lock using complete,
+matching immutable source/image inputs, with no mapping overlay or build-time
+source patch. Record the installed mapping hash and all source identities.
+Observe actual shipped PDF glyph languages independently: generated TeX alone
+does not prove visible subtitle output or PDF accessibility. The default layout
+shows body subtitles but omits TOC subtitles; publisher layouts may omit body
+subtitles. Keep those visibility limits explicit.
 
 ```sh
 (
