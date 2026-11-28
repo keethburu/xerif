@@ -106,6 +106,7 @@ def stylesheet(config, inherited):
     # Use the mapping handlers and their helpers unchanged.
     for node in config.xpath(
         'xsl:template[contains(@match,"@css:color")]'
+        ' | xsl:template[@match="dbk:footnote"][@mode="xml2tex"]'
         ' | xsl:template[@mode="xml2tex:heading-without-color"]'
         ' | xsl:function[@name="xml2tex:heading-node-in-copy" or @name="xml2tex:heading-language-start"]'
         ' | xsl:variable[@name="xml2tex:headings-without-color"]',

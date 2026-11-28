@@ -105,6 +105,13 @@ A distinct `ulink` label checks that normal heading language handling still
 emits a single override. These output contracts reject stale context and
 suppression leaking across note or literal-label boundaries.
 
+Copied styled HTTP, HTTPS, FTP, and email labels also contain notes with explicit
+German paragraphs and nested English phrases. These cases execute the inherited
+note macro and the shared note boundary, requiring the English override in body
+title/subtitle output and no note in running or TOC output. Single and multiple
+paragraph notes, an enclosing German phrase, and phrases after each note check
+that resets apply throughout the note and restore the enclosing language scope.
+
 `toc-inline-language.py` renders the synthetic `toc-inline-language.xml` in
 the pinned Scripello worker. It now checks explicit German styled link labels
 inside English body and running titles/subtitles as well as both TOC routes,

@@ -36,12 +36,18 @@ def stylesheet(config, inherited):
         E.SubElement(function, f"{{{XSL}}}param", name="value")
         E.SubElement(function, f"{{{XSL}}}sequence", select="$value")
     E.SubElement(sheet, f"{{{XSL}}}variable", name="langs", select="/dbk:hub/@xml:lang")
+    for node in inherited.xpath('xsl:variable[@name="footnotes" or @name="footnote-ids"]', namespaces=NS):
+        sheet.append(copy.deepcopy(node))
     for node in inherited.xpath(
         'c:template[starts-with(@context,"dbk:phrase[@xml:lang]") or starts-with(@context,"dbk:para[xml2tex:lang-to-babel-lang")]',
         namespaces=NS,
     ):
         template = heading.compile_fragment(node)
         template.set("priority", "100")
+        sheet.append(template)
+    for node in inherited.xpath('c:template[@context="dbk:footnote"]', namespaces=NS):
+        template = heading.compile_fragment(node)
+        template.set("priority", "-80")
         sheet.append(template)
     for node in config.xpath(
         'xsl:template[@mode="copy"]'
@@ -52,10 +58,13 @@ def stylesheet(config, inherited):
     ):
         sheet.append(copy.deepcopy(node))
     for node in config.xpath(
-        'c:template[contains(@context,"dbk:link[@xlink:href != .]") or @context="dbk:ulink" or @context="dbk:footnote/dbk:para"]',
+        'c:template[contains(@context,"dbk:link[@xlink:href != .]") or @context="dbk:ulink" or @context="dbk:footnote" or @context="dbk:footnote/dbk:para"]',
         namespaces=NS,
     ):
-        sheet.append(heading.compile_fragment(node))
+        template = heading.compile_fragment(node)
+        if node.get("context") == "dbk:footnote":
+            template.set("priority", "0")
+        sheet.append(template)
     return sheet
 
 
@@ -114,6 +123,33 @@ def boundary_cases():
            '<phrase xml:lang="de">Vor<ulink url="https://example.org/profile">'
            '<phrase xml:lang="en" css:font-style="italic">Label</phrase></ulink>' + tail,
            expected, expected)
+    yield from copied_note_cases()
+
+
+def copied_note_cases():
+    note = ('<footnote xml:id="n"><para xml:lang="de">Deutsch '
+            '<phrase xml:lang="en">English</phrase></para>%s</footnote>')
+    rendered_note = ('{\\footnote{\\selectlanguage{ngerman}%\n'
+                     'Deutsch \\foreignlanguage{english}{English}%s}}')
+    after = '<phrase xml:lang="de">Nach</phrase>'
+    rendered_after = r'\foreignlanguage{ngerman}{Nach}'
+    for target in ('http://example.org', 'https://example.org', 'ftp://example.org', 'mailto:info@example.org'):
+        for multiple in (False, True):
+            extra = '<para xml:lang="de">Zweit <phrase xml:lang="en">Second</phrase></para>' if multiple else ''
+            rendered_extra = '\nZweit \\foreignlanguage{english}{Second}' if multiple else ''
+            italic = r'{\itshape ' if multiple else r'\textit{'
+            content = (f'<link xlink:href="{target}"><phrase css:font-style="italic">Label'
+                       + note % extra + after + '</phrase></link>' + after)
+            body = (r'\href{' + target + '}{' + italic + 'Label'
+                    + rendered_note.replace('%s', rendered_extra) + rendered_after + '}}' + rendered_after)
+            filtered = r'\href{' + target + '}{' + italic + 'Label' + rendered_after + '}}' + rendered_after
+            yield (f'copied-note/{target.split(":")[0]}/{"multiple" if multiple else "single"}',
+                   content, body, filtered)
+            if not multiple:
+                content = ('<phrase xml:lang="de">Vor' + content + '</phrase>' + after)
+                body = (r'\foreignlanguage{ngerman}{Vor' + body.replace(rendered_after, 'Nach') + '}' + rendered_after)
+                filtered = (r'\foreignlanguage{ngerman}{Vor' + filtered.replace(rendered_after, 'Nach') + '}' + rendered_after)
+                yield (f'nested-copied-note/{target.split(":")[0]}', content, body, filtered)
 
 
 def escape_stylesheet(config):
@@ -186,9 +222,10 @@ def main():
                     print(f'PASS {name}/{language or "untagged"}')
         escape = processor.new_xslt30_processor().compile_stylesheet(stylesheet_text=E.tostring(escape_stylesheet(config)).decode())
         for case, content, body, filtered in boundary_cases():
+            subtitle_content = content.replace('xml:id="n"', 'xml:id="subtitle-n"')
             xml = ('<hub xmlns="http://docbook.org/ns/docbook" xmlns:css="http://www.w3.org/1996/css" '
                    'xmlns:xlink="http://www.w3.org/1999/xlink" xml:lang="en"><chapter><info>'
-                   f'<title xml:lang="en">{content}</title><subtitle xml:lang="en">{content}</subtitle>'
+                   f'<title xml:lang="en">{content}</title><subtitle xml:lang="en">{subtitle_content}</subtitle>'
                    '</info></chapter></hub>')
             source.write_text(escape.transform_to_string(xdm_node=processor.parse_xml(xml_text=xml)))
             for destination in destinations:

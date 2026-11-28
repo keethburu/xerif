@@ -1548,6 +1548,20 @@
   </template>
   
   <!-- put footnotes in extra group in case they appear in optional arguments or other stuff -->
+
+  <xsl:template match="dbk:footnote" mode="xml2tex" priority="100000">
+    <xsl:param name="remove-footnote" as="xs:boolean?" tunnel="yes"/>
+    <xsl:param name="toc-override" as="xs:boolean?" tunnel="yes"/>
+    <xsl:param name="bm-override" as="xs:boolean?" tunnel="yes"/>
+    <xsl:param name="run-override" as="xs:boolean?" tunnel="yes"/>
+    <xsl:if test="not($remove-footnote) and not($toc-override) and not($bm-override) and not($run-override)">
+      <xsl:next-match>
+        <xsl:with-param name="toc-heading-language" select="()" as="attribute(xml:lang)?" tunnel="yes"/>
+        <xsl:with-param name="toc-phrase-language" select="()" as="xs:string?" tunnel="yes"/>
+        <xsl:with-param name="suppress-foreign-lang" select="false()" as="xs:boolean?" tunnel="yes"/>
+      </xsl:next-match>
+    </xsl:if>
+  </xsl:template>
   
   <template context="dbk:footnote">
     <xsl:text>{</xsl:text>
@@ -1576,22 +1590,12 @@
   <template context="dbk:title//dbk:footnote
                     |dbk:subtitle//dbk:footnote
                     |dbk:author//dbk:footnote">
-    <xsl:param name="remove-footnote" as="xs:boolean?" tunnel="yes"/>
-    <xsl:param name="toc-override" as="xs:boolean?" tunnel="yes"/>
-    <xsl:param name="bm-override" as="xs:boolean?" tunnel="yes"/>
-    <xsl:param name="run-override" as="xs:boolean?" tunnel="yes"/>
-    <xsl:if test="not($remove-footnote) and not($toc-override) and not($bm-override) and not($run-override)">
-      <rule name="protect\footnote" type="cmd">
-        <xsl:if test=".//dbk:phrase[@role eq 'hub:identifier'][1]/@xreflabel">
-          <option select=".//dbk:phrase[@role eq 'hub:identifier'][1]/@xreflabel"/>
-        </xsl:if>
-        <param>
-          <with-param name="toc-heading-language" select="()" as="attribute(xml:lang)?" tunnel="yes"/>
-          <with-param name="toc-phrase-language" select="()" as="xs:string?" tunnel="yes"/>
-          <with-param name="suppress-foreign-lang" select="false()" as="xs:boolean?" tunnel="yes"/>
-        </param>
-      </rule>
-    </xsl:if>
+    <rule name="protect\footnote" type="cmd">
+      <xsl:if test=".//dbk:phrase[@role eq 'hub:identifier'][1]/@xreflabel">
+        <option select=".//dbk:phrase[@role eq 'hub:identifier'][1]/@xreflabel"/>
+      </xsl:if>
+      <param/>
+    </rule>
   </template>
   
   <xsl:variable name="col-head-right-style" select="'^[a-z]{1,3}headlineright$'" as="xs:string"/>
